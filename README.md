@@ -2,6 +2,8 @@
 
 **Português** | [English](README.en.md)
 
+> Construído com base na API pública do IXC Provedor, documentada em <a href="https://wikiapiprovedor.ixcsoft.com.br" target="_blank" rel="noopener noreferrer">wikiapiprovedor.ixcsoft.com.br</a>.
+
 Cliente PHP para a API (webservice) do **IXC Provedor**, da IXCSoft.
 
 > **Em desenvolvimento**, ainda sem versão publicada; veja o roadmap no [CLAUDE.md](CLAUDE.md).
