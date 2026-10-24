@@ -8,7 +8,7 @@ This file is the specification of how the package works. Behavior changes start 
 
 **It is:**
 - A thin, typed client for `https://HOST/webservice/v1`, in IXC's own model: **routes** (the system's forms, such as `cliente`: list, find, insert, update, delete) and **resources** ("Recursos da API", actions such as activating a contract), which follow no common pattern. The two stay distinct in code and docs: `Route` and `Resource`, "rotas" and "recursos".
-- PHP >= 7.4. HTTP through PSR-18 (`psr/http-client`) and PSR-17 (`psr/http-factory`), discovered with `php-http/discovery` when not injected.
+- PHP 7.4 and 8.x (`^7.4 || ^8.0`): a new major is supported only after CI runs on it. HTTP through PSR-18 (`psr/http-client`) and PSR-17 (`psr/http-factory`), discovered with `php-http/discovery` when not injected.
 
 **It is not** (out of scope; don't implement without an explicit decision):
 - Typed models or DTOs per route. Rows are associative arrays.
@@ -34,7 +34,7 @@ A change is done only when all of these hold:
 1. **It is tested.** New behavior comes with tests, and a bug fix comes with a test that fails without the fix. HTTP is faked with `php-http/mock-client`; tests never hit the network.
 2. **No secrets:** gitleaks passes, locally (hooks) and in CI.
 3. **The quality tools pass:** PHPUnit, phpcs (PSR-12) and PHPStan at level `max`, locally in Docker and in CI, on every PHP version from 7.4 to the latest.
-4. **The docs are current:** both READMEs, CLAUDE.md and examples match the behavior.
+4. **The docs are current:** both READMEs, `CHANGELOG.md` (under `Unreleased`) and CLAUDE.md match the behavior.
 
 ## Code rules
 
@@ -74,6 +74,7 @@ git config core.hooksPath .githooks   # once per clone: gitleaks before every co
 - **After the first commit, every change goes through a pull request.** No direct pushes to `main`. One focused change per PR, with green CI, tests and a description of what changed and how it was verified.
 - **Merges, tags, releases and anything published need Marcos's explicit approval each time.** A green CI is not approval.
 - The repo is `marcosmarcolin/ixc-provedor-client`, private until the first usable release.
+- Releases: the version and date go in `CHANGELOG.md` in the release PR; the `vX.Y.Z` tag is created after it is merged, with Marcos's approval. `.gitattributes` keeps development files out of the installed archive.
 
 ## Architecture (target)
 
@@ -146,5 +147,5 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
 4. [x] `Query`, `Page` and `Route` (list, find, create, update, delete, each).
 5. [x] `Resource` and `Response`.
 6. [x] `Client::create()` with discovery.
-7. [ ] Complete both READMEs (pt-BR and en) and examples.
+7. [x] Complete both READMEs (pt-BR and en) with usage examples.
 8. [ ] First release (`v0.1.0`).

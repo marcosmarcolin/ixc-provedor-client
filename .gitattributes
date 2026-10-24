@@ -1,0 +1,14 @@
+# Kept out of the archive Composer installs: development and capture files only.
+/.gitattributes export-ignore
+/.githooks export-ignore
+/.github export-ignore
+/.gitignore export-ignore
+/.gitleaks.toml export-ignore
+/CLAUDE.md export-ignore
+/Dockerfile export-ignore
+/docker-compose.yml export-ignore
+/phpcs.xml export-ignore
+/phpstan.neon export-ignore
+/phpunit.xml export-ignore
+/tests export-ignore
+/tools export-ignore

@@ -6,8 +6,6 @@
 
 PHP client for the **IXC Provedor** API (webservice), by IXCSoft.
 
-> **Under development**, with no published version yet.
-
 ## Requirements
 
 - PHP 7.4 or later
