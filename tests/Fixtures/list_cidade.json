@@ -1,6 +1,6 @@
 {
     "request": {
-        "body": "{\"qtype\":\"anon-da9393bc\",\"query\":\"0\",\"oper\":\">\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"anon-da9393bc\",\"sortorder\":\"anon-d68d3ff6\"}",
+        "body": "{\"qtype\":\"cidade.id\",\"query\":\"0\",\"oper\":\">\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"cidade.id\",\"sortorder\":\"asc\"}",
         "method": "POST",
         "path": "webservice/v1/cidade",
         "headers": {

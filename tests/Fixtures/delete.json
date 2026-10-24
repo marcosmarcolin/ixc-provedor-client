@@ -2,7 +2,7 @@
     "request": {
         "body": null,
         "method": "DELETE",
-        "path": "webservice/v1/cliente/8",
+        "path": "webservice/v1/cliente/13",
         "headers": []
     },
     "response": {
@@ -10,6 +10,6 @@
         "headers": {
             "content-type": "text/x-json; charset=utf-8"
         },
-        "body": "{\"type\":\"success\",\"message\":\"Registro 8 excluido com sucesso!\"}"
+        "body": "{\"type\":\"success\",\"message\":\"Registro 13 excluido com sucesso!\"}"
     }
 }

@@ -1,6 +1,6 @@
 {
     "request": {
-        "body": "{\"id_contrato\":\"114167286\"}",
+        "body": "{\"id_contrato\":\"999999999\"}",
         "method": "POST",
         "path": "webservice/v1/cliente_contrato_15464",
         "headers": {

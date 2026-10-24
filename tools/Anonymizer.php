@@ -11,8 +11,8 @@ namespace Marcolin\IxcProvedor\Tools;
  */
 final class Anonymizer
 {
-    /** Keys whose values describe the response, not a customer; messages are the API's own text. */
-    private const KEPT_KEYS = ['page', 'total', 'type', 'message'];
+    /** Keys whose values describe the response, not a customer: the API's own text and field names. */
+    private const KEPT_KEYS = ['page', 'total', 'type', 'message', 'campo'];
 
     /**
      * @param mixed $value

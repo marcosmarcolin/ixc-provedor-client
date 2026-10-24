@@ -12,6 +12,6 @@
         "headers": {
             "content-type": "text/x-json; charset=utf-8"
         },
-        "body": "{\"type\":\"success\",\"message\":\"Registro atualizado com sucesso!\",\"id\":\"114167286\",\"atualiza_campos\":[{\"tipo\":\"i\",\"campo\":\"anon-678bbf35\",\"valor\":\"anon-77e735c8\"}]}"
+        "body": "{\"type\":\"success\",\"message\":\"Registro atualizado com sucesso!\",\"id\":\"114167286\",\"atualiza_campos\":[{\"tipo\":\"i\",\"campo\":\"crm_data_novo\",\"valor\":\"anon-77e735c8\"}]}"
     }
 }

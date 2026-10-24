@@ -53,13 +53,18 @@ final class Transport
     /**
      * @param string $path a table or resource, optionally followed by "/<id>": "cliente", "cliente/12"
      * @param array<string, string> $headers
-     * @param string|null $body a JSON document, sent with Content-Type: application/json
+     * @param string|null $body sent with $contentType, a JSON document by default
      * @throws TransportException when no answer came back
      * @throws AuthenticationException on HTTP 401
      * @throws ApiErrorException on an error body or any other HTTP error status
      */
-    public function send(string $method, string $path, array $headers = [], ?string $body = null): ResponseInterface
-    {
+    public function send(
+        string $method,
+        string $path,
+        array $headers = [],
+        ?string $body = null,
+        string $contentType = 'application/json'
+    ): ResponseInterface {
         if (preg_match('/^[A-Za-z0-9_]+(\/[A-Za-z0-9_]+)*$/', $path) !== 1) {
             throw new InvalidArgumentException(sprintf('Invalid route "%s".', $path));
         }
@@ -72,7 +77,7 @@ final class Transport
         }
         if ($body !== null) {
             $request = $request
-                ->withHeader('Content-Type', 'application/json')
+                ->withHeader('Content-Type', $contentType)
                 ->withBody($this->streamFactory->createStream($body));
         }
 

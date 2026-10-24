@@ -32,7 +32,7 @@ final class FixtureRecorder
     /**
      * @param non-empty-string $method
      * @param array<string, string> $headers
-     * @param string|array<string, string>|null $body
+     * @param string|array<string, string|\CURLFile>|null $body
      * @return array{status: int, headers: array<string, string>, body: string}
      */
     public function record(
@@ -47,14 +47,14 @@ final class FixtureRecorder
 
         $decoded = json_decode($response['body'], true);
         $isJson = is_array($decoded);
-        $request = ['method' => $method, 'path' => $path, 'headers' => $headers, 'body' => $body];
+        $request = ['method' => $method, 'path' => $path, 'headers' => $headers, 'body' => self::describe($body)];
         // json_encode()'s defaults are the server's, so the escapes stay as captured.
         $responseBody = $isJson ? (string) json_encode($this->anonymizer->anonymize($decoded)) : $response['body'];
 
         $this->write('raw/' . $name, ['request' => $request, 'response' => $response]);
         $this->write($name, [
             // Write bodies are built from a listed row, so they carry the same personal data.
-            'request' => ['body' => $this->anonymizedRequestBody($body)] + $request,
+            'request' => ['body' => $this->requestBody($headers, self::describe($body))] + $request,
             'response' => ['status' => $response['status'], 'headers' => $response['headers'], 'body' => $responseBody],
         ]);
 
@@ -71,13 +71,45 @@ final class FixtureRecorder
     }
 
     /**
+     * Multipart files are recorded by name and type, never by content.
+     *
+     * @param string|array<string, string|\CURLFile>|null $body
+     * @return string|array<string, string>|null
+     */
+    private static function describe($body)
+    {
+        if (!is_array($body)) {
+            return $body;
+        }
+        $described = [];
+        foreach ($body as $name => $value) {
+            $described[$name] = $value instanceof \CURLFile
+                ? sprintf('<file %s, %s>', $value->getPostFilename(), $value->getMimeType())
+                : $value;
+        }
+
+        return $described;
+    }
+
+    /**
+     * Listing parameters carry no personal data; write bodies are built from listed rows, so they do.
+     *
+     * @param array<string, string> $headers
      * @param string|array<string, string>|null $body
      * @return mixed
      */
-    private function anonymizedRequestBody($body)
+    private function requestBody(array $headers, $body)
     {
+        if (($headers['ixcsoft'] ?? '') === 'listar') {
+            return $body;
+        }
         if (is_array($body)) {
-            return $this->anonymizer->anonymize($body);
+            $anonymized = [];
+            foreach ($body as $name => $value) {
+                $anonymized[$name] = strpos($value, '<file ') === 0 ? $value : $this->anonymizer->anonymize($value);
+            }
+
+            return $anonymized;
         }
         $decoded = is_string($body) ? json_decode($body, true) : null;
 

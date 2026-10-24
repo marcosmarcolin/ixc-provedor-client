@@ -21,16 +21,27 @@ final class RowEncoder
      */
     public function encode(array $row): string
     {
-        $body = [];
-        foreach ($row as $field => $value) {
-            $body[$field] = $this->value($field, $value);
-        }
-
         try {
-            return json_encode($body, JSON_THROW_ON_ERROR);
+            return json_encode($this->values($row), JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             throw new InvalidArgumentException('The row cannot be encoded as JSON: ' . $exception->getMessage());
         }
+    }
+
+    /**
+     * The row's values as the API writes them, for a JSON or a multipart body.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, string>
+     */
+    public function values(array $row): array
+    {
+        $values = [];
+        foreach ($row as $field => $value) {
+            $values[$field] = $this->value($field, $value);
+        }
+
+        return $values;
     }
 
     /**

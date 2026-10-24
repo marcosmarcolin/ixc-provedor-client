@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"qtype\":\"cliente_arquivos.id\",\"query\":\"6\",\"oper\":\"=\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"cliente_arquivos.id\",\"sortorder\":\"asc\"}",
+        "method": "POST",
+        "path": "webservice/v1/cliente_arquivos",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"page\":\"1\",\"total\":\"1\",\"registros\":[{\"local_arquivo\":\"anon-f5e80e6d\",\"id_contrato\":\"0\",\"id\":\"6\",\"descricao\":\"anon-cc83574a\",\"nome_arquivo\":\"anon-3c2d0c23\",\"data_envio\":\"2000-01-01 00:00:00\",\"id_cliente\":\"10\"}]}"
+    }
+}
