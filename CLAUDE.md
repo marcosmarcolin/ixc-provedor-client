@@ -49,6 +49,7 @@ A change is done only when all of these hold:
 - PHPStan at level `max`. No new `ignoreErrors` without a written justification.
 - Short comments, one line, only to explain why.
 - No `echo`/`print`. Errors become exceptions.
+- **Error messages:** `ApiErrorException::getMessage()` is the API's own text (Portuguese, `<br />` split and joined with `; `), so applications can show it to users as is; the status is in `statusCode()`, the raw text in `apiMessage()`. Messages written by this package (invalid arguments, transport and authentication failures) are in English and never echo the host or the token. No configurable language: it would need global state or reach only part of the messages.
 - No production dependencies besides the PSR interfaces and `php-http/discovery`.
 - Code, comments, CLAUDE.md, commits and PRs in English. `README.md` is in Portuguese, the language of the package's users, and `README.en.md` is its English translation; both start with a language switcher and change together.
 
@@ -115,7 +116,7 @@ What the fixtures in `tests/Fixtures/` show (captured from IXC Provedor on PHP 7
 
 1. [x] Scaffold: Composer, Docker, PHPUnit, PHPStan max, phpcs, CI, `Credentials`.
 2. [ ] Capture real responses from an instance as anonymized fixtures: tables done (`cliente`), resources pending.
-3. [ ] `Transport` and exceptions.
+3. [x] `Transport` and exceptions.
 4. [ ] `Query`, `Page` and `Table` (list, find, create, update, delete, each).
 5. [ ] `Resource` and `Response`.
 6. [ ] `Client::create()` with discovery.
