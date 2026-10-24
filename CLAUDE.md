@@ -81,12 +81,14 @@ src/
   ApiVersion.php          webservice API version (v1), the "webservice/v1" path prefix
   Credentials.php         "<user id>:<secret>" token, Basic authorization header
   Transport.php           builds PSR-7 requests, sends them, maps HTTP failures to exceptions
-  Table.php               list, find, create, update, delete, each (all pages)
+  Table.php               list, each (all pages), find, create, update (read, merge, write), replace, delete
+  RowEncoder.php          write body: values as text, Y-m-d dates as d/m/Y
   Resource.php            list (ixcsoft: listar) or post with free-form parameters
   Query.php               qtype/query/oper/page/rp/sortname/sortorder plus grid_param filters
   Page.php                one page of a listing: page, total, rows
   Response.php            raw response of a resource: status, body, json()
-  Exception/              IxcException (interface), TransportException, AuthenticationException, ApiErrorException
+  Exception/              IxcException (interface), TransportException, AuthenticationException, ApiErrorException,
+                          NotFoundException, UnexpectedResponseException
 ```
 
 ## API behavior
@@ -102,8 +104,9 @@ What the fixtures in `tests/Fixtures/` show (captured from IXC Provedor on PHP 7
 - **Table routes:**
   - list: `POST /<table>` with header `ixcsoft: listar`; the body (JSON or form data, both accepted) has `qtype`, `query`, `oper`, `page`, `rp`, `sortname`, `sortorder`, and optionally `grid_param`, a JSON-encoded string of `[{"TB": field, "OP": operator, "P": value}]`. The routing is by the header, so `GET` with it works too. The answer is `{"page": "1", "total": ..., "registros": [...]}`; `total` is sometimes an int and sometimes a numeric string (`list_page`, `list_cidade`), and an empty listing has no `registros` key: `{"page":"1","total":0}` (`list_empty`). Every value in a row is a string.
   - find: a listing with `qtype` `<table>.id`, `oper` `=`.
-  - insert: `POST /<table>` with the row as JSON. Success is `{"type":"success","message":"Registro inserido com sucesso!","id":"2","atualiza_campos":[...]}`, with `id` as a string. The server validates the whole form (for `cliente`, more required fields than the wiki marks), so a row is built by reading an existing one or the wiki's full template and changing only what is needed. Dates are sent as `d/m/Y`, while listings return `Y-m-d`.
-  - update: `PUT /<table>/<id>` with the full row as JSON; a partial row fails validation. Success is `{"type":"success","message":"Registro atualizado com sucesso!","id":"2",...}`. An id that does not exist also answers success and changes nothing (`update_not_found`).
+  - insert: `POST /<table>` with the row as JSON. Success is `{"type":"success","message":"Registro inserido com sucesso!","id":"2","atualiza_campos":[...]}`, with `id` as a string. The server validates the whole form (for `cliente`, more required fields than the wiki marks), so a row is built by reading an existing one or the wiki's full template and changing only what is needed.
+  - **dates:** writes take `d/m/Y`, listings return `Y-m-d`. A `Y-m-d` date in a write is answered with success and saved blank or corrupted: `1990-01-01` became `0001-01-00` (`update_as_listed`, `find_after_update_as_listed`). With `Y-m-d` → `d/m/Y` and `0000-00-00` → `""`, every date of a `cliente` row survives a read-and-write. So `RowEncoder` converts every write. Confirmed on `cliente`; other tables *to confirm*.
+  - update: `PUT /<table>/<id>` with the full row as JSON; a partial row fails validation, and a missing field is saved blank. Success is `{"type":"success","message":"Registro atualizado com sucesso!","id":"2",...}`. An id that does not exist also answers success and changes nothing (`update_not_found`). So `Table::update()` reads the record first (`NotFoundException` when missing), merges the changes and writes the whole row back; `Table::replace()` is the raw `PUT`.
   - patch: `PATCH /<table>/<id>` exists but validates like `PUT`, so it needs the full row too (`patch`, `patch_partial`).
   - delete: `DELETE /<table>/<id>`; success is `{"type":"success","message":"Registro 2 excluido com sucesso!"}`, also when the id does not exist (`delete_not_found`).
 - **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list. *To confirm with captures*:
@@ -117,7 +120,7 @@ What the fixtures in `tests/Fixtures/` show (captured from IXC Provedor on PHP 7
 1. [x] Scaffold: Composer, Docker, PHPUnit, PHPStan max, phpcs, CI, `Credentials`.
 2. [ ] Capture real responses from an instance as anonymized fixtures: tables done (`cliente`), resources pending.
 3. [x] `Transport` and exceptions.
-4. [ ] `Query`, `Page` and `Table` (list, find, create, update, delete, each).
+4. [x] `Query`, `Page` and `Table` (list, find, create, update, delete, each).
 5. [ ] `Resource` and `Response`.
 6. [ ] `Client::create()` with discovery.
 7. [ ] Complete both READMEs (pt-BR and en) and examples.
