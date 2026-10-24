@@ -32,6 +32,28 @@ $version = ApiVersion::v1();   // ou ApiVersion::fromString('v1')
 $version->basePath();          // "webservice/v1"
 ```
 
+## Erros
+
+Toda exceção de uma requisição implementa `Marcolin\IxcProvedor\Exception\IxcException`:
+
+| Exceção | Quando |
+|---|---|
+| `ApiErrorException` | a API respondeu `{"type":"error"}`, o que costuma vir com HTTP 200, ou um status HTTP de erro |
+| `AuthenticationException` | HTTP 401: token recusado, ou rota liberada só para o próprio servidor |
+| `TransportException` | a requisição não teve resposta (DNS, conexão, TLS, timeout) |
+
+A mensagem de um `ApiErrorException` é o texto da própria API, em português, e pode ser mostrada ao usuário:
+
+```php
+try {
+    // ...
+} catch (ApiErrorException $e) {
+    $e->getMessage();   // "Preencha o campo Telefone Celular; CPF/CNPJ obrigatório!"
+    $e->messages();     // ["Preencha o campo Telefone Celular", "CPF/CNPJ obrigatório!"]
+    $e->statusCode();   // 200
+}
+```
+
 ## Desenvolvimento
 
 Tudo roda em Docker (PHP 7.4 por padrão):
