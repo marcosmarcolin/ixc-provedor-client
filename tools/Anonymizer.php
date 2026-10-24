@@ -38,8 +38,9 @@ final class Anonymizer
         if ($value === '' || strlen($value) === 1 || preg_match('/^[0\-: ]+$/', $value) === 1) {
             return $value;
         }
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1) {
-            return '2000-01-01';
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $date) === 1) {
+            // Invalid dates (0001-01-00 from a bad write) are server artifacts, not personal data.
+            return checkdate((int) $date[2], (int) $date[3], (int) $date[1]) ? '2000-01-01' : $value;
         }
         if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value) === 1) {
             return '2000-01-01 00:00:00';

@@ -2,7 +2,7 @@
     "request": {
         "body": "{\"obs\":\"anon-19604690\"}",
         "method": "PATCH",
-        "path": "webservice/v1/cliente/4",
+        "path": "webservice/v1/cliente/8",
         "headers": {
             "Content-Type": "application/json"
         }

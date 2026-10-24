@@ -141,7 +141,12 @@ if ($id === '') {
     exit(1);
 }
 $one = $clients . '/' . $id;
-$recorder->record('find', 'POST', $clients, $listing, Requests::query('cliente.id', '=', $id));
+$found = $recorder->record('find', 'POST', $clients, $listing, Requests::query('cliente.id', '=', $id));
+// The row sent back as listed (Y-m-d dates): answers success but blanks the dates.
+$asListed = Requests::firstRow($found['body']);
+unset($asListed['id']);
+$recorder->record('update_as_listed', 'PUT', $one, $json, (string) json_encode($asListed));
+$recorder->record('find_after_update_as_listed', 'POST', $clients, $listing, Requests::query('cliente.id', '=', $id));
 $recorder->record('update', 'PUT', $one, $json, (string) json_encode(['obs' => 'alterado pelo PUT'] + $client));
 $recorder->record('update_invalid', 'PUT', $one, $json, (string) json_encode(['razao' => ''] + $client));
 $recorder->record('patch', 'PATCH', $one, $json, (string) json_encode(['obs' => 'alterado pelo PATCH'] + $client));
