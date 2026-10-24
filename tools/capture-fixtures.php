@@ -45,7 +45,7 @@ $listing = ['ixcsoft' => 'listar', 'Content-Type' => 'application/json'];
 $clients = 'webservice/v1/cliente';
 
 // Reads.
-$recorder->record('list_page', 'POST', $clients, $listing, Requests::query('cliente.id', '>', '0'));
+$page = $recorder->record('list_page', 'POST', $clients, $listing, Requests::query('cliente.id', '>', '0'));
 $recorder->record(
     'list_page_json_response',
     'POST',
@@ -112,18 +112,27 @@ $cities = $recorder->record(
 
 // Writes, on a client created here and deleted at the end.
 $cityId = Requests::firstId($cities['body']);
-$client = [
+// An existing client passes the instance's validation, so it is the template; only identifying fields change.
+$client = array_merge(Requests::insertable(Requests::firstRow($page['body'])), [
     'ativo' => 'S',
     'tipo_pessoa' => 'F',
     'razao' => 'Cliente de teste ixc-provedor-client',
+    'fantasia' => '',
     'cnpj_cpf' => '529.982.247-25',
+    'ie_identidade' => '',
     'endereco' => 'Rua de Teste',
     'numero' => '1',
     'bairro' => 'Centro',
+    'cep' => '89999-000',
     'cidade' => $cityId !== '' ? $cityId : '1',
-    'tipo_localidade' => 'U',
-    'dica_imposto_retido_cliente' => 'N',
-];
+    'telefone_celular' => '(49) 99999-0000',
+    'fone' => '',
+    'whatsapp' => '',
+    'email' => 'cliente.teste@example.com',
+    'hotsite_email' => 'cliente.teste@example.com',
+    'senha' => '',
+    'data_nascimento' => '01/01/1990',
+]);
 
 $recorder->record('insert_invalid', 'POST', $clients, $json, (string) json_encode(['ativo' => 'S']));
 $id = Requests::firstId($recorder->record('insert', 'POST', $clients, $json, (string) json_encode($client))['body']);
@@ -135,7 +144,20 @@ $one = $clients . '/' . $id;
 $recorder->record('find', 'POST', $clients, $listing, Requests::query('cliente.id', '=', $id));
 $recorder->record('update', 'PUT', $one, $json, (string) json_encode(['obs' => 'alterado pelo PUT'] + $client));
 $recorder->record('update_invalid', 'PUT', $one, $json, (string) json_encode(['razao' => ''] + $client));
-$recorder->record('patch', 'PATCH', $one, $json, (string) json_encode(['obs' => 'alterado pelo PATCH']));
-$recorder->record('update_not_found', 'PUT', $clients . '/999999999', $json, (string) json_encode($client));
+$recorder->record('patch', 'PATCH', $one, $json, (string) json_encode(['obs' => 'alterado pelo PATCH'] + $client));
+$recorder->record('patch_partial', 'PATCH', $one, $json, (string) json_encode(['obs' => 'somente obs']));
+// Own identifiers, so the uniqueness checks against the client above do not answer first.
+$stranger = [
+    'cnpj_cpf' => '168.995.350-09',
+    'email' => 'outro.teste@example.com',
+    'hotsite_email' => 'outro.teste@example.com',
+];
+$recorder->record(
+    'update_not_found',
+    'PUT',
+    $clients . '/999999999',
+    $json,
+    (string) json_encode($stranger + $client)
+);
 $recorder->record('delete', 'DELETE', $one);
 $recorder->record('delete_not_found', 'DELETE', $one);

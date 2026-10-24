@@ -22,6 +22,8 @@ When in doubt about behavior, these win, in this order:
 2. The official API wiki: https://wikiapiprovedor.ixcsoft.com.br (pages load through `formulario.php?form=<table>` and `recursos_api.php`).
 3. The official `IXCsoft\WebserviceClient` class used by the wiki examples.
 
+Fixtures are captured with `docker compose run --rm php composer capture` (`tools/capture-fixtures.php`) against the instance in `.env`. Its write scenarios create, change and delete a client, so it only runs against a disposable instance. Raw responses stay in the gitignored `tests/Fixtures/raw/`; only the anonymized ones are committed, after checking that no real value survived.
+
 Never implement from memory. When unsure, check the wiki or capture a real response.
 
 ## Definition of done
@@ -88,25 +90,31 @@ src/
 
 ## API behavior
 
-What the wiki and the official client show. Items marked *to confirm* need a capture from a real instance before they are implemented.
+What the fixtures in `tests/Fixtures/` show (captured from IXC Provedor on PHP 7.4), plus the wiki and the official client. Items marked *to confirm* still need a capture.
 
 - **Base URL:** `https://HOST/webservice/v1/<table or resource>`. Self-signed certificates are common; that is configured on the injected PSR-18 client, not here.
-- **API version:** the `v1` in the path is an `ApiVersion`, never a hardcoded string. `v1` is the only supported version and the default (`ApiVersion::latest()`). `fromString()` rejects anything else, because routes and payloads are only known for v1. Supporting a new version means capturing its responses, adding it to `ApiVersion::SUPPORTED`, and branching only where its behavior differs.
-- **Authentication:** `Authorization: Basic base64("<user id>:<secret>")`. A wrong or deleted token answers HTTP 401.
+- **API version:** the `v1` in the path is an `ApiVersion`, never a hardcoded string. The server accepts only `v1`; any other answers `{"type":"error","message":"Versão v2 do webservice não está disponível!"}` with HTTP 200 (`error_unknown_version`). `v1` is the only supported version and the default (`ApiVersion::latest()`), and `fromString()` rejects anything else. Supporting a new version means capturing its responses, adding it to `ApiVersion::SUPPORTED`, and branching only where its behavior differs.
+- **Authentication:** `Authorization: Basic base64("<user id>:<secret>")`; the secret is 64 hex characters. A wrong secret or unknown user is rejected by the web server with HTTP 401 and an HTML page, not JSON (`error_wrong_secret`, `error_unknown_user`).
+- **Errors are mostly HTTP 200.** Unknown table or resource, unknown version, missing permission, IP or time outside what the user's group allows, and every validation failure answer 200 with `{"type":"error","message":...}`. So a response is an error when its JSON has `type` `error`, whatever the status. The real HTTP errors are 401 (authentication, protected routes, empty body) and 405 with an `Allow` header (method blocked for that resource); an unexpected server failure can answer 200 with an HTML `<div>` (`list_invalid_field`).
+- **Messages** may hold HTML line breaks (`<br />`) between several validation errors. *To confirm*: one capture (IP not allowed) came double-encoded (`n\u00c3\u00a3o`), the others are plain UTF-8 escapes; check on an instance whose files are still ISO-8859-1.
+- **Content type** is not reliable: listings and writes answer `text/x-json; charset=utf-8`, the routing errors `text/html; charset=ISO-8859-1`. The header `ixc-type-response: application/json` makes listings answer `application/json`. Decide by the body, never by the content type.
 - **Table routes:**
-  - list: `POST /<table>` with header `ixcsoft: listar` and a JSON body `qtype`, `query`, `oper`, `page`, `rp`, `sortname`, `sortorder`, and optionally `grid_param`, a JSON-encoded string of `[{"TB": field, "OP": operator, "P": value}]` (`OP` `L` is like). The answer is `{"page", "total", "registros"}`; *to confirm*: the shape of an empty listing.
-  - insert: `POST /<table>` with the row as JSON. *To confirm*: the success and error bodies (expected `{"type":"success"|"error","message":...,"id":...}`).
-  - update: `PUT /<table>/<id>` with the row as JSON.
-  - delete: `DELETE /<table>/<id>`.
-- **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list.
+  - list: `POST /<table>` with header `ixcsoft: listar`; the body (JSON or form data, both accepted) has `qtype`, `query`, `oper`, `page`, `rp`, `sortname`, `sortorder`, and optionally `grid_param`, a JSON-encoded string of `[{"TB": field, "OP": operator, "P": value}]`. The routing is by the header, so `GET` with it works too. The answer is `{"page": "1", "total": ..., "registros": [...]}`; `total` is sometimes an int and sometimes a numeric string (`list_page`, `list_cidade`), and an empty listing has no `registros` key: `{"page":"1","total":0}` (`list_empty`). Every value in a row is a string.
+  - find: a listing with `qtype` `<table>.id`, `oper` `=`.
+  - insert: `POST /<table>` with the row as JSON. Success is `{"type":"success","message":"Registro inserido com sucesso!","id":"2","atualiza_campos":[...]}`, with `id` as a string. The server validates the whole form (for `cliente`, more required fields than the wiki marks), so a row is built by reading an existing one or the wiki's full template and changing only what is needed. Dates are sent as `d/m/Y`, while listings return `Y-m-d`.
+  - update: `PUT /<table>/<id>` with the full row as JSON; a partial row fails validation. Success is `{"type":"success","message":"Registro atualizado com sucesso!","id":"2",...}`. An id that does not exist also answers success and changes nothing (`update_not_found`).
+  - patch: `PATCH /<table>/<id>` exists but validates like `PUT`, so it needs the full row too (`patch`, `patch_partial`).
+  - delete: `DELETE /<table>/<id>`; success is `{"type":"success","message":"Registro 2 excluido com sucesso!"}`, also when the id does not exist (`delete_not_found`). The id segment accepts a comma-separated list (*to confirm*).
+- **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list. *To confirm with captures*:
   - called like a listing (`ixcsoft: listar`) with their own parameters: `get_boleto`, `desbloqueio_confianca`, `desconectar_clientes`, `cliente_contrato_ativar_cliente`, `gerar_protocolo_atendimento`, `liberacao_reducao_contrato_29157`...
   - called with a plain `POST`: `su_oss_chamado_fechar`, `su_oss_chamado_analisar`, `su_oss_chamado_alterar_setor`, `fn_areceber_recebimentos_baixas_novo`, `su_transf_atendimento_26466`...
   - the answer format varies (JSON, a bare number, base64 content), so a resource returns a raw `Response`.
+- **Not copied from the official client:** it runs every decoded value through `utf8_decode()`, turning UTF-8 into ISO-8859-1; this client returns UTF-8 as decoded.
 
 ## Roadmap
 
 1. [x] Scaffold: Composer, Docker, PHPUnit, PHPStan max, phpcs, CI, `Credentials`.
-2. [ ] Capture real responses from an instance (success, error, empty listing, resources) as anonymized fixtures.
+2. [ ] Capture real responses from an instance as anonymized fixtures: tables done (`cliente`), resources pending.
 3. [ ] `Transport` and exceptions.
 4. [ ] `Query`, `Page` and `Table` (list, find, create, update, delete, each).
 5. [ ] `Resource` and `Response`.

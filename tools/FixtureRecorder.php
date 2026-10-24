@@ -49,12 +49,13 @@ final class FixtureRecorder
         $isJson = is_array($decoded);
         $request = ['method' => $method, 'path' => $path, 'headers' => $headers, 'body' => $body];
         // json_encode()'s defaults are the server's, so the escapes stay as captured.
-        $body = $isJson ? (string) json_encode($this->anonymizer->anonymize($decoded)) : $response['body'];
+        $responseBody = $isJson ? (string) json_encode($this->anonymizer->anonymize($decoded)) : $response['body'];
 
         $this->write('raw/' . $name, ['request' => $request, 'response' => $response]);
         $this->write($name, [
-            'request' => $request,
-            'response' => ['status' => $response['status'], 'headers' => $response['headers'], 'body' => $body],
+            // Write bodies are built from a listed row, so they carry the same personal data.
+            'request' => ['body' => $this->anonymizedRequestBody($body)] + $request,
+            'response' => ['status' => $response['status'], 'headers' => $response['headers'], 'body' => $responseBody],
         ]);
 
         fprintf(
@@ -67,6 +68,20 @@ final class FixtureRecorder
         );
 
         return $response;
+    }
+
+    /**
+     * @param string|array<string, string>|null $body
+     * @return mixed
+     */
+    private function anonymizedRequestBody($body)
+    {
+        if (is_array($body)) {
+            return $this->anonymizer->anonymize($body);
+        }
+        $decoded = is_string($body) ? json_decode($body, true) : null;
+
+        return is_array($decoded) ? (string) json_encode($this->anonymizer->anonymize($decoded)) : $body;
     }
 
     /**
