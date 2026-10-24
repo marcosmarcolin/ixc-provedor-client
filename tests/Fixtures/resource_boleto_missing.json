@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"boletos\":\"114167286\",\"juro\":\"N\",\"multa\":\"N\",\"atualiza_boleto\":\"N\",\"tipo_boleto\":\"anon-9cc50439\",\"base64\":\"S\"}",
+        "method": "POST",
+        "path": "webservice/v1/get_boleto",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/html; charset=ISO-8859-1"
+        },
+        "body": ""
+    }
+}
