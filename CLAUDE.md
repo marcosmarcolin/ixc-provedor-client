@@ -83,8 +83,10 @@ src/
   ApiVersion.php          webservice API version (v1), the "webservice/v1" path prefix
   Credentials.php         "<user id>:<secret>" token, Basic authorization header
   Transport.php           builds PSR-7 requests, sends them, maps HTTP failures to exceptions
-  Table.php               list, each (all pages), find, create, update (read, merge, write), replace, delete
+  Table.php               list, each (all pages), find, create (with files), update (read, merge, write), replace, patch, delete
   RowEncoder.php          write body: values as text, Y-m-d dates as d/m/Y
+  Attachment.php          a file to send in a form field (fromPath, fromContents)
+  MultipartBody.php       multipart/form-data body for inserts with files
   Resource.php            list (ixcsoft: listar) or post with free-form parameters
   Query.php               qtype/query/oper/page/rp/sortname/sortorder plus grid_param filters
   Page.php                one page of a listing: page, total, rows
@@ -111,7 +113,8 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
   - insert: `POST /<table>` with the row as JSON. Success is `{"type":"success","message":"Registro inserido com sucesso!","id":"2","atualiza_campos":[...]}`, with `id` as a string. The whole form is validated (for `cliente`, more required fields than the wiki marks), so a row is built by reading an existing one or the wiki's full template and changing only what is needed.
   - **dates:** writes take `d/m/Y`, listings return `Y-m-d`. A `Y-m-d` date in a write is answered with success and saved blank or corrupted: `1990-01-01` became `0001-01-00` (`update_as_listed`, `find_after_update_as_listed`). With `Y-m-d` → `d/m/Y` and `0000-00-00` → `""`, every date of a `cliente` row survives a read-and-write. So `RowEncoder` converts every write. Confirmed on `cliente`; other tables *to confirm*.
   - update: `PUT /<table>/<id>` with the full row as JSON; a partial row fails validation. Success is `{"type":"success","message":"Registro atualizado com sucesso!","id":"2",...}`, also for an id that does not exist. So `Table::update()` reads the record first (`NotFoundException` when missing), merges the changes and writes the whole row back; `Table::replace()` is the raw `PUT`.
-  - patch: `PATCH /<table>/<id>` validates like `PUT`, so it needs the full row too (`patch`, `patch_partial`).
+  - patch: `PATCH /<table>/<id>` validates like `PUT`, so it needs the full row too (`patch`, `patch_partial`). `Table::patch()` exists for parity with the official client.
+  - **files:** an insert takes a file only as `multipart/form-data`, the file in its form field (`local_arquivo` of `cliente_arquivos`, as the wiki lists it), and the other fields as text parts (`insert_with_file`). The official client's `arquivo` = `S` is not needed. The file is stored under `local_arquivo` (`arquivos/<name>`) and `nome_arquivo` takes the uploaded name (`find_file`). This insert answers `id` as a number, not a string. Accents in multipart fields arrive intact; characters outside Latin-1 (`—`) are stored replaced (`-`), as in JSON. Uploads go only with `POST`: PHP parses multipart only for it.
   - delete: `DELETE /<table>/<id>`; success is `{"type":"success","message":"Registro 2 excluido com sucesso!"}`, also when the id does not exist.
 - **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list; the wiki documents each one's parameters (`recursos_api.php`).
   - The wiki calls them in two ways: `$api->get()`, which is `POST` with `ixcsoft: listar` (`get_boleto`, `desbloqueio_confianca`, `gerar_protocolo_atendimento`, `cliente_contrato_15464`...), and `$api->post()`, a plain `POST` (`su_oss_chamado_fechar`, `su_oss_chamado_analisar`, `radusuarios_25452`...). `Resource::list()` and `Resource::post()` mirror them. Parameters go as given (the wiki already writes dates as `d/m/Y`); a JSON body works like the official client's form data (`resource_protocol_listar`, `resource_protocol_form`).

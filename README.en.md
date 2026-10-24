@@ -66,11 +66,22 @@ $clients->update('42', ['obs' => 'Changed by the API']);  // changes only these 
 $clients->delete('42');
 ```
 
+Files go in the form's file field, in a `create()`; the package sends the row as multipart, the only format in which the API takes files:
+
+```php
+use Marcolin\IxcProvedor\Attachment;
+
+$ixc->table('cliente_arquivos')->create(
+    ['id_cliente' => '42', 'descricao' => 'Signed contract'],
+    ['local_arquivo' => Attachment::fromPath('/tmp/contrato.pdf', 'application/pdf')]
+);
+```
+
 - Fields may be given without the table name: `razao` becomes `cliente.razao`. Operators are the API's, such as `=`, `!=`, `>` and `L` (contains).
 - Every value comes back as a string, ids included.
 - **Insert:** the API validates the whole form. Build the row from an existing record (`find`) or the wiki's full template and change only what is needed.
 - **Dates:** listings return `Y-m-d`, but writes expect `d/m/Y`. A `Y-m-d` date is saved blank or wrong, and the API still answers success. So the package converts `Y-m-d` to `d/m/Y` on every write; dates can be sent as the listing returned them.
-- **Update:** `update()` reads the record, applies the changes and writes the whole record back, because the API validates every field (two requests). For a missing id it throws `NotFoundException`. To write a full row directly, use `replace($id, $row)`.
+- **Update:** `update()` reads the record, applies the changes and writes the whole record back, because the API validates every field (two requests). For a missing id it throws `NotFoundException`. To write a full row directly, use `replace($id, $row)`; `patch($id, $row)` does the same with the `PATCH` method, which the API also validates as the whole record.
 - **False successes:** the API answers success to `replace()` and `delete()` of an id that does not exist.
 
 ## Resources

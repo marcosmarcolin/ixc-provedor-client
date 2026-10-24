@@ -1,0 +1,19 @@
+{
+    "request": {
+        "body": {
+            "id_cliente": "10",
+            "descricao": "anon-cc83574a",
+            "local_arquivo": "<file contrato.txt, text/plain>"
+        },
+        "method": "POST",
+        "path": "webservice/v1/cliente_arquivos",
+        "headers": []
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"success\",\"message\":\"Registro inserido com sucesso!\",\"id\":6,\"atualiza_campos\":[{\"tipo\":\"i\",\"campo\":\"nome_arquivo\",\"valor\":\"anon-3c2d0c23\"},{\"tipo\":\"i\",\"campo\":\"data_envio\",\"valor\":\"anon-e03270d4\"}]}"
+    }
+}

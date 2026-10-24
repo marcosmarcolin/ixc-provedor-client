@@ -218,5 +218,18 @@ $recorder->record(
     $json,
     (string) json_encode($stranger + $client)
 );
+// A file goes as multipart form data; the record is listed back to show where it was stored.
+$upload = $root . '/tests/Fixtures/raw/upload.txt';
+file_put_contents($upload, "conteudo de teste do ixc-provedor-client\n");
+$files = 'webservice/v1/cliente_arquivos';
+$uploaded = $recorder->record('insert_with_file', 'POST', $files, [], [
+    'id_cliente' => $id,
+    'descricao' => 'Contrato de adesão',
+    'local_arquivo' => new CURLFile($upload, 'text/plain', 'contrato.txt'),
+]);
+$fileId = Requests::firstId($uploaded['body']);
+$recorder->record('find_file', 'POST', $files, $listing, Requests::query('cliente_arquivos.id', '=', $fileId));
+$recorder->record('delete_file', 'DELETE', $files . '/' . $fileId);
+
 $recorder->record('delete', 'DELETE', $one);
 $recorder->record('delete_not_found', 'DELETE', $one);

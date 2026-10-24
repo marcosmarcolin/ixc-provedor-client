@@ -66,11 +66,22 @@ $clientes->update('42', ['obs' => 'Alterado pela API']);   // muda só esses cam
 $clientes->delete('42');
 ```
 
+Arquivos vão no campo de arquivo do formulário, num `create()`; o pacote envia a linha como multipart, o único formato em que a API aceita arquivos:
+
+```php
+use Marcolin\IxcProvedor\Attachment;
+
+$ixc->table('cliente_arquivos')->create(
+    ['id_cliente' => '42', 'descricao' => 'Contrato assinado'],
+    ['local_arquivo' => Attachment::fromPath('/tmp/contrato.pdf', 'application/pdf')]
+);
+```
+
 - Os campos podem ir sem o nome da tabela: `razao` vira `cliente.razao`. Os operadores são os da API, como `=`, `!=`, `>` e `L` (contém).
 - Todo valor volta como string, inclusive os ids.
 - **Inserir:** a API valida o formulário inteiro. Monte a linha a partir de um registro existente (`find`) ou do modelo completo da wiki e mude só o necessário.
 - **Datas:** a listagem devolve `Y-m-d`, mas a escrita espera `d/m/Y`. Uma data em `Y-m-d` é gravada vazia ou errada, e a API ainda responde sucesso. Por isso o pacote converte `Y-m-d` para `d/m/Y` em toda escrita; pode mandar as datas como vieram da listagem.
-- **Atualizar:** `update()` lê o registro, aplica as mudanças e grava o registro completo, porque a API valida todos os campos (são duas requisições). Num id inexistente, lança `NotFoundException`. Para gravar uma linha completa direto, use `replace($id, $linha)`.
+- **Atualizar:** `update()` lê o registro, aplica as mudanças e grava o registro completo, porque a API valida todos os campos (são duas requisições). Num id inexistente, lança `NotFoundException`. Para gravar uma linha completa direto, use `replace($id, $linha)`; `patch($id, $linha)` faz o mesmo com o método `PATCH`, que a API também valida como o registro completo.
 - **Falsos sucessos:** a API responde sucesso a `replace()` e `delete()` de um id que não existe.
 
 ## Recursos

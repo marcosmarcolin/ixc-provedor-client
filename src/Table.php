@@ -12,7 +12,7 @@ use Marcolin\IxcProvedor\Exception\UnexpectedResponseException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * The routes of one table: list, find, create, update, replace and delete.
+ * The routes of one table: list, find, create (with files), update, replace, patch and delete.
  *
  * Rows are associative arrays with the API's own field names; every value the API returns is a string.
  */
@@ -96,12 +96,21 @@ final class Table
      * Inserts a row and returns its id. The API validates the whole form, so build the row from an
      * existing record or the wiki's full template; Y-m-d dates are sent as d/m/Y.
      *
+     * Files go in their form fields, such as ['local_arquivo' => Attachment::fromPath(...)]; with
+     * files, the row is sent as multipart form data, the only way the API takes them.
+     *
      * @param array<string, mixed> $row
+     * @param array<string, Attachment> $files
      * @throws IxcException
      */
-    public function create(array $row): string
+    public function create(array $row, array $files = []): string
     {
-        $response = $this->transport->send('POST', $this->name, [], $this->encoder->encode($row));
+        if ($files === []) {
+            $response = $this->transport->send('POST', $this->name, [], $this->encoder->encode($row));
+        } else {
+            $body = new MultipartBody($this->encoder->values($row), $files);
+            $response = $this->transport->send('POST', $this->name, [], $body->body(), $body->contentType());
+        }
         $answer = $this->success($response);
         $id = $answer['id'] ?? null;
         if (!is_scalar($id) || (string) $id === '') {
@@ -145,6 +154,19 @@ final class Table
     {
         $path = $this->name . '/' . self::id($id);
         $this->success($this->transport->send('PUT', $path, [], $this->encoder->encode($row)));
+    }
+
+    /**
+     * The PATCH route. The API validates it like PUT, so it takes the whole row as well: it is
+     * replace() under another method, for callers that need PATCH itself.
+     *
+     * @param array<string, mixed> $row
+     * @throws IxcException
+     */
+    public function patch(string $id, array $row): void
+    {
+        $path = $this->name . '/' . self::id($id);
+        $this->success($this->transport->send('PATCH', $path, [], $this->encoder->encode($row)));
     }
 
     /**

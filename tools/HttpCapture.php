@@ -32,7 +32,7 @@ final class HttpCapture
     /**
      * @param non-empty-string $method
      * @param array<string, string> $headers
-     * @param string|array<string, string>|null $body a string is sent as is, an array as multipart form data
+     * @param string|array<string, string|\CURLFile>|null $body a string is sent as is, an array as multipart form data
      * @return array{status: int, headers: array<string, string>, body: string}
      */
     public function send(string $method, string $path, array $headers = [], $body = null, ?string $token = null): array

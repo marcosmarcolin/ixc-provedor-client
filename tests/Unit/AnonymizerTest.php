@@ -63,6 +63,16 @@ final class AnonymizerTest extends TestCase
         self::assertSame('2000-01-01', $anonymizer->anonymize('1990-01-01'));
     }
 
+    public function testKeepsTheFieldNamesOfAtualizaCampos(): void
+    {
+        $anonymizer = new Anonymizer();
+
+        $result = $anonymizer->anonymize([['tipo' => 'i', 'campo' => 'nome_arquivo', 'valor' => 'contrato.txt']]);
+
+        $value = $anonymizer->anonymize('contrato.txt');
+        self::assertSame([['tipo' => 'i', 'campo' => 'nome_arquivo', 'valor' => $value]], $result);
+    }
+
     public function testKeepsTheApiStatusAndMessage(): void
     {
         $body = ['type' => 'error', 'message' => 'Recurso tabela_x não está disponível!'];

@@ -1,6 +1,6 @@
 {
     "request": {
-        "body": "{\"qtype\":\"anon-44c52124\",\"query\":\"1\",\"oper\":\"=\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"anon-44c52124\",\"sortorder\":\"anon-d68d3ff6\"}",
+        "body": "{\"qtype\":\"cliente.campo_inexistente\",\"query\":\"1\",\"oper\":\"=\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"cliente.campo_inexistente\",\"sortorder\":\"asc\"}",
         "method": "POST",
         "path": "webservice/v1/cliente",
         "headers": {

@@ -2,7 +2,7 @@
     "request": {
         "body": "{\"obs\":\"anon-19604690\"}",
         "method": "PATCH",
-        "path": "webservice/v1/cliente/8",
+        "path": "webservice/v1/cliente/13",
         "headers": {
             "Content-Type": "application/json"
         }
@@ -12,6 +12,6 @@
         "headers": {
             "content-type": "text/x-json; charset=utf-8"
         },
-        "body": "{\"type\":\"error\",\"message\":\"CPF\\/CNPJ obrigat\\u00f3rio!\",\"atualiza_campos\":[{\"tipo\":\"i\",\"campo\":\"anon-678bbf35\",\"valor\":\"\"}]}"
+        "body": "{\"type\":\"error\",\"message\":\"CPF\\/CNPJ obrigat\\u00f3rio!\",\"atualiza_campos\":[{\"tipo\":\"i\",\"campo\":\"crm_data_novo\",\"valor\":\"\"}]}"
     }
 }

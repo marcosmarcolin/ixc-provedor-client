@@ -1,6 +1,6 @@
 {
     "request": {
-        "body": "{\"boletos\":\"114167286\",\"juro\":\"N\",\"multa\":\"N\",\"atualiza_boleto\":\"N\",\"tipo_boleto\":\"anon-9cc50439\",\"base64\":\"S\"}",
+        "body": "{\"boletos\":\"999999999\",\"juro\":\"N\",\"multa\":\"N\",\"atualiza_boleto\":\"N\",\"tipo_boleto\":\"arquivo\",\"base64\":\"S\"}",
         "method": "POST",
         "path": "webservice/v1/get_boleto",
         "headers": {

@@ -6,6 +6,7 @@ namespace Marcolin\IxcProvedor\Tests\Unit;
 
 use Http\Mock\Client as MockClient;
 use InvalidArgumentException;
+use Marcolin\IxcProvedor\Attachment;
 use Marcolin\IxcProvedor\Credentials;
 use Marcolin\IxcProvedor\Exception\ApiErrorException;
 use Marcolin\IxcProvedor\Exception\NotFoundException;
@@ -28,15 +29,7 @@ final class TableTest extends TestCase
     protected function setUp(): void
     {
         $this->http = new MockClient();
-        $factory = new Psr17Factory();
-        $transport = new Transport(
-            $this->http,
-            $factory,
-            $factory,
-            'https://ixc.example.com',
-            Credentials::fromToken('6:not-a-real-secret')
-        );
-        $this->table = new Table($transport, 'cliente');
+        $this->table = new Table($this->transport(), 'cliente');
     }
 
     public function testListsWithTheListarHeaderAndTheQueryAsJson(): void
@@ -127,6 +120,34 @@ final class TableTest extends TestCase
         self::assertMatchesRegularExpression('/^\d+$/', $id);
     }
 
+    public function testCreateWithAFileSendsMultipartFormData(): void
+    {
+        $this->http->addResponse(Fixture::response('insert_with_file'));
+
+        $id = (new Table($this->transport(), 'cliente_arquivos'))->create(
+            ['id_cliente' => '10', 'descricao' => 'Contrato', 'data_envio' => '2026-10-24'],
+            ['local_arquivo' => Attachment::fromContents('contrato.txt', 'conteudo', 'text/plain')]
+        );
+
+        $request = $this->request(0);
+        self::assertSame('POST', $request->getMethod());
+        self::assertSame('https://ixc.example.com/webservice/v1/cliente_arquivos', (string) $request->getUri());
+        $contentType = $request->getHeaderLine('Content-Type');
+        self::assertMatchesRegularExpression('/^multipart\/form-data; boundary=ixc-[0-9a-f]{32}$/', $contentType);
+        $body = (string) $request->getBody();
+        self::assertStringContainsString("name=\"descricao\"\r\n\r\nContrato\r\n", $body);
+        self::assertStringContainsString("name=\"data_envio\"\r\n\r\n24/10/2026\r\n", $body);
+        self::assertStringContainsString(
+            "name=\"local_arquivo\"; filename=\"contrato.txt\"\r\nContent-Type: text/plain\r\n\r\nconteudo\r\n",
+            $body
+        );
+        // The insert answer of cliente_arquivos has a numeric id, not a string.
+        $answer = json_decode((string) Fixture::response('insert_with_file')->getBody(), true);
+        self::assertIsArray($answer);
+        self::assertIsInt($answer['id']);
+        self::assertSame((string) $answer['id'], $id);
+    }
+
     public function testCreateRaisesTheValidationErrors(): void
     {
         $this->http->addResponse(Fixture::response('insert_invalid'));
@@ -182,6 +203,28 @@ final class TableTest extends TestCase
         $this->table->replace('999999999', ['razao' => 'Teste']);
 
         self::assertSame(['razao' => 'Teste'], $this->body($this->request(0)));
+    }
+
+    public function testPatchSendsTheWholeRowWithPatch(): void
+    {
+        $this->http->addResponse(Fixture::response('patch'));
+
+        $this->table->patch('2', ['razao' => 'Teste', 'data_nascimento' => '1990-05-17']);
+
+        $request = $this->request(0);
+        self::assertSame('PATCH', $request->getMethod());
+        self::assertSame('https://ixc.example.com/webservice/v1/cliente/2', (string) $request->getUri());
+        self::assertSame(['razao' => 'Teste', 'data_nascimento' => '17/05/1990'], $this->body($request));
+    }
+
+    public function testPatchRaisesTheValidationOfAPartialRow(): void
+    {
+        $this->http->addResponse(Fixture::response('patch_partial'));
+
+        $this->expectException(ApiErrorException::class);
+        $this->expectExceptionMessage('CPF/CNPJ obrigatório!');
+
+        $this->table->patch('2', ['obs' => 'somente obs']);
     }
 
     public function testDeleteSendsTheIdInThePath(): void
@@ -240,13 +283,20 @@ final class TableTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new Table(new Transport(
+        new Table($this->transport(), 'cliente/1');
+    }
+
+    private function transport(): Transport
+    {
+        $factory = new Psr17Factory();
+
+        return new Transport(
             $this->http,
-            new Psr17Factory(),
-            new Psr17Factory(),
+            $factory,
+            $factory,
             'https://ixc.example.com',
             Credentials::fromToken('6:not-a-real-secret')
-        ), 'cliente/1');
+        );
     }
 
     /**
