@@ -6,8 +6,6 @@
 
 Cliente PHP para a API (webservice) do **IXC Provedor**, da IXCSoft.
 
-> **Em desenvolvimento**, ainda sem versão publicada.
-
 ## Requisitos
 
 - PHP 7.4 ou superior

@@ -11,11 +11,17 @@
     "webservice",
     "isp"
   ],
+  "homepage": "https://github.com/marcosmarcolin/ixc-provedor-client",
   "authors": [
     {
       "name": "Marcos Marcolin"
     }
   ],
+  "support": {
+    "issues": "https://github.com/marcosmarcolin/ixc-provedor-client/issues",
+    "source": "https://github.com/marcosmarcolin/ixc-provedor-client",
+    "docs": "https://wikiapiprovedor.ixcsoft.com.br"
+  },
   "require": {
     "php": ">=7.4",
     "ext-json": "*",
@@ -29,6 +35,9 @@
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^9.6",
     "squizlabs/php_codesniffer": "^3.13"
+  },
+  "suggest": {
+    "guzzlehttp/guzzle": "A PSR-18 HTTP client with PSR-17 factories, discovered automatically"
   },
   "autoload": {
     "psr-4": {
