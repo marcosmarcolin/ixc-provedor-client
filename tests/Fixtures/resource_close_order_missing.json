@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"id_chamado\":\"114167286\",\"data_inicio\":\"anon-06d6ded1\",\"data_final\":\"anon-fcaa4876\",\"mensagem\":\"anon-46070d4b\",\"gera_comissao\":\"N\",\"id_su_diagnostico\":\"\",\"finaliza_processo\":\"S\",\"status\":\"F\",\"id_tecnico\":\"\"}",
+        "method": "POST",
+        "path": "webservice/v1/su_oss_chamado_fechar",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"error\",\"message\":\"Preencha Colaborador respons\\u00e1vel\"}"
+    }
+}
