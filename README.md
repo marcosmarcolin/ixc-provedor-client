@@ -40,6 +40,14 @@ docker compose run --rm php vendor/bin/phpunit
 docker compose run --rm php composer lint
 ```
 
+Os hooks de `pre-commit` e `pre-push` rodam o [gitleaks](https://github.com/gitleaks/gitleaks) (também via Docker) e bloqueiam commits e pushes que contenham segredos, como um token do IXC. Ative-os uma vez por clone:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+O CI roda o mesmo scan em todo o histórico.
+
 ## Licença
 
 MIT

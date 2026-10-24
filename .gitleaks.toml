@@ -1,0 +1,15 @@
+# Default gitleaks rules plus the IXC Provedor webservice token.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "ixc-provedor-token"
+description = "IXC Provedor webservice token (<user id>:<sha256 hex secret>)"
+regex = '''\b[1-9][0-9]*:[0-9a-fA-F]{64}\b'''
+keywords = [":"]
+
+[[rules]]
+id = "http-basic-authorization"
+description = "Authorization header with Basic credentials"
+regex = '''(?i)authorization["']?\s*(?:=>|[:=])\s*["']?basic\s+[A-Za-z0-9+/]{16,}={0,2}'''
+keywords = ["basic"]
