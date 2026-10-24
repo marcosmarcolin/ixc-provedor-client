@@ -38,12 +38,14 @@ $http = new \GuzzleHttp\Client(['verify' => false]);
 $ixc = Client::create('https://192.168.0.10', '6:YOUR_TOKEN', $http);
 ```
 
-## Tables
+## Routes
+
+In IXC's model, a **route** is one of the system's forms (`cliente`, `cliente_contrato`, `fn_areceber`...), with listing and records: the API validates a request as the form validates its screen. Actions such as activating a contract or generating a bank slip are **resources** (next section).
 
 ```php
 use Marcolin\IxcProvedor\Query;
 
-$clients = $ixc->table('cliente');
+$clients = $ixc->route('cliente');
 
 // One page
 $page = $clients->list(
@@ -71,13 +73,13 @@ Files go in the form's file field, in a `create()`; the package sends the row as
 ```php
 use Marcolin\IxcProvedor\Attachment;
 
-$ixc->table('cliente_arquivos')->create(
+$ixc->route('cliente_arquivos')->create(
     ['id_cliente' => '42', 'descricao' => 'Signed contract'],
     ['local_arquivo' => Attachment::fromPath('/tmp/contrato.pdf', 'application/pdf')]
 );
 ```
 
-- Fields may be given without the table name: `razao` becomes `cliente.razao`. Operators are the API's, such as `=`, `!=`, `>` and `L` (contains).
+- Fields may be given without the route name: `razao` becomes `cliente.razao`. Operators are the API's, such as `=`, `!=`, `>` and `L` (contains).
 - Every value comes back as a string, ids included.
 - **Insert:** the API validates the whole form. Build the row from an existing record (`find`) or the wiki's full template and change only what is needed.
 - **Dates:** listings return `Y-m-d`, but writes expect `d/m/Y`. A `Y-m-d` date is saved blank or wrong, and the API still answers success. So the package converts `Y-m-d` to `d/m/Y` on every write; dates can be sent as the listing returned them.
@@ -86,14 +88,20 @@ $ixc->table('cliente_arquivos')->create(
 
 ## Resources
 
-The API resources ("Recursos da API" in the [wiki](https://wikiapiprovedor.ixcsoft.com.br)) are called by name, with the parameters the wiki documents for each. `list()` matches the wiki examples' `$api->get()`, and `post()` their `$api->post()`:
+Resources ("Recursos da API" in the [wiki](https://wikiapiprovedor.ixcsoft.com.br)) are the system's actions, called by name with the parameters the wiki documents for each. `list()` matches the wiki examples' `$api->get()`, and `post()` their `$api->post()`.
+
+The resources the wiki documents have constants in `Resources`, named after the wiki's titles; any other name can be given as a string:
 
 ```php
-$protocol = $ixc->resource('gerar_protocolo_atendimento')->list()->json();   // "20261024162331914000"
+use Marcolin\IxcProvedor\Resources;
 
-$response = $ixc->resource('desbloqueio_confianca')->list(['id' => '42']);
+$protocol = $ixc->resource(Resources::GERAR_PROTOCOLO_ATENDIMENTO)->list()->json();   // "20261024162331914000"
 
-$response = $ixc->resource('su_oss_chamado_fechar')->post([
+$response = $ixc->resource(Resources::DESBLOQUEIO_CONFIANCA)->list(['id' => '42']);
+
+$response = $ixc->resource('other_resource_12345')->post([...]);   // a name outside the list
+
+$response = $ixc->resource(Resources::FINALIZAR_ORDEM_SERVICO)->post([
     'id_chamado' => '101',
     'data_inicio' => '02/12/2019 10:30:00',
     'data_final' => '04/12/2019 14:16:00',

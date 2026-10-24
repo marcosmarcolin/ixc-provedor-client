@@ -51,7 +51,7 @@ final class Transport
     }
 
     /**
-     * @param string $path a table or resource, optionally followed by "/<id>": "cliente", "cliente/12"
+     * @param string $path a route or resource, optionally followed by "/<id>": "cliente", "cliente/12"
      * @param array<string, string> $headers
      * @param string|null $body sent with $contentType, a JSON document by default
      * @throws TransportException when no answer came back

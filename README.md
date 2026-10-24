@@ -38,12 +38,14 @@ $http = new \GuzzleHttp\Client(['verify' => false]);
 $ixc = Client::create('https://192.168.0.10', '6:SEU_TOKEN', $http);
 ```
 
-## Tabelas
+## Rotas
+
+No modelo do IXC, uma **rota** é um formulário do sistema (`cliente`, `cliente_contrato`, `fn_areceber`...), com listagem e cadastro: a API valida a requisição como o formulário valida a tela. Ações como ativar um contrato ou gerar um boleto são **recursos** (próxima seção).
 
 ```php
 use Marcolin\IxcProvedor\Query;
 
-$clientes = $ixc->table('cliente');
+$clientes = $ixc->route('cliente');
 
 // Uma página
 $pagina = $clientes->list(
@@ -71,13 +73,13 @@ Arquivos vão no campo de arquivo do formulário, num `create()`; o pacote envia
 ```php
 use Marcolin\IxcProvedor\Attachment;
 
-$ixc->table('cliente_arquivos')->create(
+$ixc->route('cliente_arquivos')->create(
     ['id_cliente' => '42', 'descricao' => 'Contrato assinado'],
     ['local_arquivo' => Attachment::fromPath('/tmp/contrato.pdf', 'application/pdf')]
 );
 ```
 
-- Os campos podem ir sem o nome da tabela: `razao` vira `cliente.razao`. Os operadores são os da API, como `=`, `!=`, `>` e `L` (contém).
+- Os campos podem ir sem o nome da rota: `razao` vira `cliente.razao`. Os operadores são os da API, como `=`, `!=`, `>` e `L` (contém).
 - Todo valor volta como string, inclusive os ids.
 - **Inserir:** a API valida o formulário inteiro. Monte a linha a partir de um registro existente (`find`) ou do modelo completo da wiki e mude só o necessário.
 - **Datas:** a listagem devolve `Y-m-d`, mas a escrita espera `d/m/Y`. Uma data em `Y-m-d` é gravada vazia ou errada, e a API ainda responde sucesso. Por isso o pacote converte `Y-m-d` para `d/m/Y` em toda escrita; pode mandar as datas como vieram da listagem.
@@ -86,14 +88,20 @@ $ixc->table('cliente_arquivos')->create(
 
 ## Recursos
 
-Os recursos da API ("Recursos da API" na [wiki](https://wikiapiprovedor.ixcsoft.com.br)) são chamados pelo nome, com os parâmetros que a wiki documenta para cada um. `list()` equivale ao `$api->get()` dos exemplos da wiki, e `post()` ao `$api->post()`:
+Os recursos ("Recursos da API" na [wiki](https://wikiapiprovedor.ixcsoft.com.br)) são as ações do sistema, chamadas pelo nome com os parâmetros que a wiki documenta para cada um. `list()` equivale ao `$api->get()` dos exemplos da wiki, e `post()` ao `$api->post()`.
+
+Os recursos documentados na wiki têm constantes em `Resources`, com o nome do título da wiki; qualquer outro nome pode ser passado como texto:
 
 ```php
-$protocolo = $ixc->resource('gerar_protocolo_atendimento')->list()->json();   // "20261024162331914000"
+use Marcolin\IxcProvedor\Resources;
 
-$resposta = $ixc->resource('desbloqueio_confianca')->list(['id' => '42']);
+$protocolo = $ixc->resource(Resources::GERAR_PROTOCOLO_ATENDIMENTO)->list()->json();   // "20261024162331914000"
 
-$resposta = $ixc->resource('su_oss_chamado_fechar')->post([
+$resposta = $ixc->resource(Resources::DESBLOQUEIO_CONFIANCA)->list(['id' => '42']);
+
+$resposta = $ixc->resource('outro_recurso_12345')->post([...]);   // nome fora da lista
+
+$resposta = $ixc->resource(Resources::FINALIZAR_ORDEM_SERVICO)->post([
     'id_chamado' => '101',
     'data_inicio' => '02/12/2019 10:30:00',
     'data_final' => '04/12/2019 14:16:00',

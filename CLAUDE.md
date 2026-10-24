@@ -7,11 +7,11 @@ This file is the specification of how the package works. Behavior changes start 
 ## Scope
 
 **It is:**
-- A thin, typed client for `https://HOST/webservice/v1`: the table routes (list, find, insert, update, delete) and the API resources ("Recursos da API"), which follow no common pattern.
+- A thin, typed client for `https://HOST/webservice/v1`, in IXC's own model: **routes** (the system's forms, such as `cliente`: list, find, insert, update, delete) and **resources** ("Recursos da API", actions such as activating a contract), which follow no common pattern. The two stay distinct in code and docs: `Route` and `Resource`, "rotas" and "recursos".
 - PHP >= 7.4. HTTP through PSR-18 (`psr/http-client`) and PSR-17 (`psr/http-factory`), discovered with `php-http/discovery` when not injected.
 
 **It is not** (out of scope; don't implement without an explicit decision):
-- Typed models or DTOs per table. Rows are associative arrays.
+- Typed models or DTOs per route. Rows are associative arrays.
 - A dependency on Guzzle, Symfony or any framework. Framework adapters, if ever, go in separate packages.
 - Retries, caching or rate limiting. Those belong to the injected PSR-18 client or middleware.
 
@@ -21,7 +21,7 @@ This file is the specification of how the package works. Behavior changes start 
 
 When in doubt about behavior, these win, in this order:
 1. Responses from a real IXC Provedor instance, captured as anonymized fixtures in `tests/Fixtures/`.
-2. The official API wiki: https://wikiapiprovedor.ixcsoft.com.br (pages load through `formulario.php?form=<table>` and `recursos_api.php`).
+2. The official API wiki: https://wikiapiprovedor.ixcsoft.com.br (pages load through `formulario.php?form=<route>` and `recursos_api.php`).
 3. The official `IXCsoft\WebserviceClient` class used by the wiki examples.
 
 Fixtures are captured with `docker compose run --rm php composer capture` (`tools/capture-fixtures.php`) against the instance in `.env`. Its write scenarios create, change and delete a client, so it only runs against a disposable instance. Raw responses stay in the gitignored `tests/Fixtures/raw/`; only the anonymized ones are committed, after checking that no real value survived.
@@ -79,15 +79,16 @@ git config core.hooksPath .githooks   # once per clone: gitleaks before every co
 
 ```
 src/
-  Client.php              entry point: create(), table(), resource()
+  Client.php              entry point: create(), route(), resource()
   ApiVersion.php          webservice API version (v1), the "webservice/v1" path prefix
   Credentials.php         "<user id>:<secret>" token, Basic authorization header
   Transport.php           builds PSR-7 requests, sends them, maps HTTP failures to exceptions
-  Table.php               list, each (all pages), find, create (with files), update (read, merge, write), replace, patch, delete
+  Route.php               a form: list, each (all pages), find, create (with files), update (read, merge, write), replace, patch, delete
   RowEncoder.php          write body: values as text, Y-m-d dates as d/m/Y
   Attachment.php          a file to send in a form field (fromPath, fromContents)
   MultipartBody.php       multipart/form-data body for inserts with files
-  Resource.php            list (ixcsoft: listar) or post with free-form parameters
+  Resource.php            an action: list (ixcsoft: listar) or post with free-form parameters
+  Resources.php           constants for the resources the wiki documents, named after its titles
   Query.php               qtype/query/oper/page/rp/sortname/sortorder plus grid_param filters
   Page.php                one page of a listing: page, total, rows
   Response.php            raw response of a resource: status, body, json()
@@ -99,24 +100,24 @@ src/
 
 What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor), plus the public wiki and the official client. Items marked *to confirm* still need a capture.
 
-- **Base URL:** `https://HOST/webservice/v1/<table or resource>`. Self-signed certificates are common; that is configured on the injected PSR-18 client, not here.
+- **Base URL:** `https://HOST/webservice/v1/<route or resource>`. Self-signed certificates are common; that is configured on the injected PSR-18 client, not here.
 - **API version:** the `v1` in the path is an `ApiVersion`, never a hardcoded string. Another version answers `{"type":"error","message":"Versão v2 do webservice não está disponível!"}` with HTTP 200 (`error_unknown_version`). `v1` is the only supported version and the default (`ApiVersion::latest()`), and `fromString()` rejects anything else. Supporting a new version means capturing its responses, adding it to `ApiVersion::SUPPORTED`, and branching only where its behavior differs.
 - **Authentication:** `Authorization: Basic base64("<user id>:<secret>")`; the secret is 64 hex characters. A wrong secret or unknown user answers HTTP 401 with an HTML page, not JSON (`error_wrong_secret`, `error_unknown_user`). A client IP outside the networks allowed for the user's group answers 200 with `{"type":"error"}`.
-- **Errors are mostly HTTP 200** with `{"type":"error","message":...}`: unknown table or resource, unknown version, validation failures, a blocked IP, and resource errors. So a response is an error when its JSON has `type` `error`, whatever the status; any other status of 400 or more is an error too. An unexpected failure can answer 200 with an HTML `<div>` (`list_invalid_field`).
-- **False successes:** some operations answer `{"type":"success"}` for an id that does not exist: `PUT` and `DELETE` on a table (`update_not_found`, `delete_not_found`) and the resource `cliente_contrato_15464` (`resource_contract_status_missing`). Never read success as "the record existed".
+- **Errors are mostly HTTP 200** with `{"type":"error","message":...}`: unknown route or resource, unknown version, validation failures, a blocked IP, and resource errors. So a response is an error when its JSON has `type` `error`, whatever the status; any other status of 400 or more is an error too. An unexpected failure can answer 200 with an HTML `<div>` (`list_invalid_field`).
+- **False successes:** some operations answer `{"type":"success"}` for an id that does not exist: `PUT` and `DELETE` on a route (`update_not_found`, `delete_not_found`) and the resource `cliente_contrato_15464` (`resource_contract_status_missing`). Never read success as "the record existed".
 - **Messages** may hold HTML line breaks (`<br />`) between several validation errors. *To confirm*: one capture (blocked IP) came double-encoded (`n\u00c3\u00a3o`), the others are plain UTF-8 escapes.
 - **Content type** is not reliable: `text/x-json; charset=utf-8` on listings and writes, `text/html; charset=ISO-8859-1` on some errors and on resources. The header `ixc-type-response: application/json` makes listings answer `application/json`. Decide by the body, never by the content type.
-- **Table routes:**
-  - list: `POST /<table>` with header `ixcsoft: listar`; the body (JSON or form data, both accepted) has `qtype`, `query`, `oper`, `page`, `rp`, `sortname`, `sortorder`, and optionally `grid_param`, a JSON-encoded string of `[{"TB": field, "OP": operator, "P": value}]`. `GET` with the header answers the same (`list_get_method`). The answer is `{"page": "1", "total": ..., "registros": [...]}`; `total` is sometimes an int and sometimes a numeric string (`list_page`, `list_cidade`), and an empty listing has no `registros` key: `{"page":"1","total":0}` (`list_empty`). Every value in a row is a string.
+- **Routes** (forms):
+  - list: `POST /<route>` with header `ixcsoft: listar`; the body (JSON or form data, both accepted) has `qtype`, `query`, `oper`, `page`, `rp`, `sortname`, `sortorder`, and optionally `grid_param`, a JSON-encoded string of `[{"TB": field, "OP": operator, "P": value}]`. `GET` with the header answers the same (`list_get_method`). The answer is `{"page": "1", "total": ..., "registros": [...]}`; `total` is sometimes an int and sometimes a numeric string (`list_page`, `list_cidade`), and an empty listing has no `registros` key: `{"page":"1","total":0}` (`list_empty`). Every value in a row is a string.
   - operators seen working: `=`, `>`, and `L` (contains: `nome` `L` `Chapec` found the matching cities); the wiki also uses `!=`.
-  - find: a listing with `qtype` `<table>.id`, `oper` `=`.
-  - insert: `POST /<table>` with the row as JSON. Success is `{"type":"success","message":"Registro inserido com sucesso!","id":"2","atualiza_campos":[...]}`, with `id` as a string. The whole form is validated (for `cliente`, more required fields than the wiki marks), so a row is built by reading an existing one or the wiki's full template and changing only what is needed.
-  - **dates:** writes take `d/m/Y`, listings return `Y-m-d`. A `Y-m-d` date in a write is answered with success and saved blank or corrupted: `1990-01-01` became `0001-01-00` (`update_as_listed`, `find_after_update_as_listed`). With `Y-m-d` → `d/m/Y` and `0000-00-00` → `""`, every date of a `cliente` row survives a read-and-write. So `RowEncoder` converts every write. Confirmed on `cliente`; other tables *to confirm*.
-  - update: `PUT /<table>/<id>` with the full row as JSON; a partial row fails validation. Success is `{"type":"success","message":"Registro atualizado com sucesso!","id":"2",...}`, also for an id that does not exist. So `Table::update()` reads the record first (`NotFoundException` when missing), merges the changes and writes the whole row back; `Table::replace()` is the raw `PUT`.
-  - patch: `PATCH /<table>/<id>` validates like `PUT`, so it needs the full row too (`patch`, `patch_partial`). `Table::patch()` exists for parity with the official client.
+  - find: a listing with `qtype` `<route>.id`, `oper` `=`.
+  - insert: `POST /<route>` with the row as JSON. Success is `{"type":"success","message":"Registro inserido com sucesso!","id":"2","atualiza_campos":[...]}`, with `id` as a string. The whole form is validated (for `cliente`, more required fields than the wiki marks), so a row is built by reading an existing one or the wiki's full template and changing only what is needed.
+  - **dates:** writes take `d/m/Y`, listings return `Y-m-d`. A `Y-m-d` date in a write is answered with success and saved blank or corrupted: `1990-01-01` became `0001-01-00` (`update_as_listed`, `find_after_update_as_listed`). With `Y-m-d` → `d/m/Y` and `0000-00-00` → `""`, every date of a `cliente` row survives a read-and-write. So `RowEncoder` converts every write. Confirmed on `cliente`; other routes *to confirm*.
+  - update: `PUT /<route>/<id>` with the full row as JSON; a partial row fails validation. Success is `{"type":"success","message":"Registro atualizado com sucesso!","id":"2",...}`, also for an id that does not exist. So `Route::update()` reads the record first (`NotFoundException` when missing), merges the changes and writes the whole row back; `Route::replace()` is the raw `PUT`.
+  - patch: `PATCH /<route>/<id>` validates like `PUT`, so it needs the full row too (`patch`, `patch_partial`). `Route::patch()` exists for parity with the official client.
   - **files:** an insert takes a file only as `multipart/form-data`, the file in its form field (`local_arquivo` of `cliente_arquivos`, as the wiki lists it), and the other fields as text parts (`insert_with_file`). The official client's `arquivo` = `S` is not needed. The file is stored under `local_arquivo` (`arquivos/<name>`) and `nome_arquivo` takes the uploaded name (`find_file`). This insert answers `id` as a number, not a string. Accents in multipart fields arrive intact; characters outside Latin-1 (`—`) are stored replaced (`-`), as in JSON. Uploads go only with `POST`: PHP parses multipart only for it.
-  - delete: `DELETE /<table>/<id>`; success is `{"type":"success","message":"Registro 2 excluido com sucesso!"}`, also when the id does not exist.
-- **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list; the wiki documents each one's parameters (`recursos_api.php`).
+  - delete: `DELETE /<route>/<id>`; success is `{"type":"success","message":"Registro 2 excluido com sucesso!"}`, also when the id does not exist.
+- **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list; the wiki documents each one's parameters (`recursos_api.php`), and `Resources` has a constant for each of those, named after the wiki's title, while `Client::resource()` still takes any name.
   - The wiki calls them in two ways: `$api->get()`, which is `POST` with `ixcsoft: listar` (`get_boleto`, `desbloqueio_confianca`, `gerar_protocolo_atendimento`, `cliente_contrato_15464`...), and `$api->post()`, a plain `POST` (`su_oss_chamado_fechar`, `su_oss_chamado_analisar`, `radusuarios_25452`...). `Resource::list()` and `Resource::post()` mirror them. Parameters go as given (the wiki already writes dates as `d/m/Y`); a JSON body works like the official client's form data (`resource_protocol_listar`, `resource_protocol_form`).
   - Every resource of the wiki's `recursos_api.php` was called with real records (`composer capture -- resources`). Business-rule errors are `{"type":"error"}`, so `ApiErrorException` (`resource_contract_status_active`, `resource_trust_unlock_active`, `resource_speed_release`, `resource_transfer_ticket`, `resource_comodato_incomplete`). Successes are `{"type":"success"}` (`resource_activate_contract`, `resource_clear_mac`, `resource_analyze_order`, `resource_forward_order`, `resource_close_order`, `resource_receive_invoice`). The rest answer in their own format, which is why a resource returns a raw `Response`:
 
@@ -142,7 +143,7 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
 1. [x] Scaffold: Composer, Docker, PHPUnit, PHPStan max, phpcs, CI, `Credentials`.
 2. [x] Capture real responses from an instance as anonymized fixtures (`cliente` and representative resources).
 3. [x] `Transport` and exceptions.
-4. [x] `Query`, `Page` and `Table` (list, find, create, update, delete, each).
+4. [x] `Query`, `Page` and `Route` (list, find, create, update, delete, each).
 5. [x] `Resource` and `Response`.
 6. [x] `Client::create()` with discovery.
 7. [ ] Complete both READMEs (pt-BR and en) and examples.

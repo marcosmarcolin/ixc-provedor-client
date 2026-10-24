@@ -9,7 +9,7 @@ use InvalidArgumentException;
 /**
  * The parameters of a listing: one condition (qtype, oper, query), paging, sorting and extra grid_param filters.
  *
- * Fields may be given bare ("id") or qualified ("cliente.id"); bare ones are qualified with the table name.
+ * Fields may be given bare ("id") or qualified ("cliente.id"); bare ones are qualified with the route name.
  */
 final class Query
 {
@@ -111,25 +111,25 @@ final class Query
     }
 
     /**
-     * The listing body for a table, with every field qualified by its name.
+     * The listing body for a route, with every field qualified by its name.
      *
      * @return array<string, string>
      */
-    public function toParameters(string $table): array
+    public function toParameters(string $route): array
     {
         $parameters = [
-            'qtype' => self::qualify($this->field, $table),
+            'qtype' => self::qualify($this->field, $route),
             'query' => $this->value,
             'oper' => $this->operator,
             'page' => (string) $this->page,
             'rp' => (string) $this->perPage,
-            'sortname' => self::qualify($this->sortField, $table),
+            'sortname' => self::qualify($this->sortField, $route),
             'sortorder' => $this->sortOrder,
         ];
         if ($this->filters !== []) {
             $filters = [];
             foreach ($this->filters as $filter) {
-                $filters[] = ['TB' => self::qualify($filter['TB'], $table)] + $filter;
+                $filters[] = ['TB' => self::qualify($filter['TB'], $route)] + $filter;
             }
             $parameters['grid_param'] = (string) json_encode($filters);
         }
@@ -155,8 +155,8 @@ final class Query
         return $operator;
     }
 
-    private static function qualify(string $field, string $table): string
+    private static function qualify(string $field, string $route): string
     {
-        return strpos($field, '.') === false ? $table . '.' . $field : $field;
+        return strpos($field, '.') === false ? $route . '.' . $field : $field;
     }
 }
