@@ -106,6 +106,7 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
 - **Content type** is not reliable: `text/x-json; charset=utf-8` on listings and writes, `text/html; charset=ISO-8859-1` on some errors and on resources. The header `ixc-type-response: application/json` makes listings answer `application/json`. Decide by the body, never by the content type.
 - **Table routes:**
   - list: `POST /<table>` with header `ixcsoft: listar`; the body (JSON or form data, both accepted) has `qtype`, `query`, `oper`, `page`, `rp`, `sortname`, `sortorder`, and optionally `grid_param`, a JSON-encoded string of `[{"TB": field, "OP": operator, "P": value}]`. `GET` with the header answers the same (`list_get_method`). The answer is `{"page": "1", "total": ..., "registros": [...]}`; `total` is sometimes an int and sometimes a numeric string (`list_page`, `list_cidade`), and an empty listing has no `registros` key: `{"page":"1","total":0}` (`list_empty`). Every value in a row is a string.
+  - operators seen working: `=`, `>`, and `L` (contains: `nome` `L` `Chapec` found the matching cities); the wiki also uses `!=`.
   - find: a listing with `qtype` `<table>.id`, `oper` `=`.
   - insert: `POST /<table>` with the row as JSON. Success is `{"type":"success","message":"Registro inserido com sucesso!","id":"2","atualiza_campos":[...]}`, with `id` as a string. The whole form is validated (for `cliente`, more required fields than the wiki marks), so a row is built by reading an existing one or the wiki's full template and changing only what is needed.
   - **dates:** writes take `d/m/Y`, listings return `Y-m-d`. A `Y-m-d` date in a write is answered with success and saved blank or corrupted: `1990-01-01` became `0001-01-00` (`update_as_listed`, `find_after_update_as_listed`). With `Y-m-d` → `d/m/Y` and `0000-00-00` → `""`, every date of a `cliente` row survives a read-and-write. So `RowEncoder` converts every write. Confirmed on `cliente`; other tables *to confirm*.
@@ -124,6 +125,6 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
 3. [x] `Transport` and exceptions.
 4. [x] `Query`, `Page` and `Table` (list, find, create, update, delete, each).
 5. [x] `Resource` and `Response`.
-6. [ ] `Client::create()` with discovery.
+6. [x] `Client::create()` with discovery.
 7. [ ] Complete both READMEs (pt-BR and en) and examples.
 8. [ ] First release (`v0.1.0`).

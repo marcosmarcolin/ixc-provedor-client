@@ -4,32 +4,106 @@
 
 Cliente PHP para a API (webservice) do **IXC Provedor**, da IXCSoft.
 
-> **Em desenvolvimento.** A API pública ainda não está pronta; veja o roadmap no [CLAUDE.md](CLAUDE.md).
+> **Em desenvolvimento**, ainda sem versão publicada; veja o roadmap no [CLAUDE.md](CLAUDE.md).
 
 ## Requisitos
 
 - PHP 7.4 ou superior
-- Um cliente HTTP PSR-18 e uma factory PSR-17 (por exemplo, `guzzlehttp/guzzle` ou `symfony/http-client` com `nyholm/psr7`)
+- Um cliente HTTP PSR-18 com as factories PSR-17. O Guzzle 7 já traz os dois.
 
-## Autenticação
+## Instalação
 
-O token é gerado em **Configurações > Usuários**, num usuário com **Permite acesso ao webservice** marcado. Ele tem o formato `<id do usuário>:<segredo>`:
+```sh
+composer require marcosmarcolin/ixc-provedor-client guzzlehttp/guzzle
+```
+
+Qualquer cliente PSR-18 serve (por exemplo, `symfony/http-client` com `nyholm/psr7`); o instalado é encontrado automaticamente.
+
+## Primeiros passos
+
+O token é gerado em **Configurações > Usuários**, num usuário com **Permite acesso ao webservice** marcado, e tem o formato `<id do usuário>:<segredo>`. O grupo do usuário define de quais redes ele pode acessar: de fora delas, a API responde erro.
 
 ```php
-use Marcolin\IxcProvedor\Credentials;
+use Marcolin\IxcProvedor\Client;
 
-$credentials = Credentials::fromToken('6:4dacdb8e47193e8cbbabe508c3c59b45...');
+$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN');
 ```
+
+Passe só o endereço da instância, sem `/webservice/v1`: os exemplos da wiki incluem esse caminho, mas aqui ele é recusado.
+
+Com certificado autoassinado, passe um cliente HTTP configurado para aceitá-lo:
+
+```php
+$http = new \GuzzleHttp\Client(['verify' => false]);
+$ixc = Client::create('https://192.168.0.10', '6:SEU_TOKEN', $http);
+```
+
+## Tabelas
+
+```php
+use Marcolin\IxcProvedor\Query;
+
+$clientes = $ixc->table('cliente');
+
+// Uma página
+$pagina = $clientes->list(
+    Query::where('razao', 'L', 'Silva')     // L: contém
+        ->andWhere('ativo', '=', 'S')       // condições extras (grid_param)
+        ->orderBy('id', 'desc')
+        ->withPerPage(50)
+);
+$pagina->total();   // registros que atendem a consulta, somando todas as páginas
+$pagina->rows();    // as linhas desta página
+
+// Todas as páginas
+foreach ($clientes->each(Query::where('ativo', '=', 'S')) as $cliente) {
+    // ...
+}
+
+$cliente = $clientes->find('42');                          // array ou null
+$id = $clientes->create($linha);                           // id do novo registro
+$clientes->update('42', ['obs' => 'Alterado pela API']);   // muda só esses campos
+$clientes->delete('42');
+```
+
+- Os campos podem ir sem o nome da tabela: `razao` vira `cliente.razao`. Os operadores são os da API, como `=`, `!=`, `>` e `L` (contém).
+- Todo valor volta como string, inclusive os ids.
+- **Inserir:** a API valida o formulário inteiro. Monte a linha a partir de um registro existente (`find`) ou do modelo completo da wiki e mude só o necessário.
+- **Datas:** a listagem devolve `Y-m-d`, mas a escrita espera `d/m/Y`. Uma data em `Y-m-d` é gravada vazia ou errada, e a API ainda responde sucesso. Por isso o pacote converte `Y-m-d` para `d/m/Y` em toda escrita; pode mandar as datas como vieram da listagem.
+- **Atualizar:** `update()` lê o registro, aplica as mudanças e grava o registro completo, porque a API valida todos os campos (são duas requisições). Num id inexistente, lança `NotFoundException`. Para gravar uma linha completa direto, use `replace($id, $linha)`.
+- **Falsos sucessos:** a API responde sucesso a `replace()` e `delete()` de um id que não existe.
+
+## Recursos
+
+Os recursos da API ("Recursos da API" na [wiki](https://wikiapiprovedor.ixcsoft.com.br)) são chamados pelo nome, com os parâmetros que a wiki documenta para cada um. `list()` equivale ao `$api->get()` dos exemplos da wiki, e `post()` ao `$api->post()`:
+
+```php
+$protocolo = $ixc->resource('gerar_protocolo_atendimento')->list()->json();   // "20261024162331914000"
+
+$resposta = $ixc->resource('desbloqueio_confianca')->list(['id' => '42']);
+
+$resposta = $ixc->resource('su_oss_chamado_fechar')->post([
+    'id_chamado' => '101',
+    'data_inicio' => '02/12/2019 10:30:00',
+    'data_final' => '04/12/2019 14:16:00',
+    // ...
+]);
+
+$resposta->status();
+$resposta->body();   // a resposta crua: JSON, texto, base64 ou vazia
+$resposta->json();   // decodificada; lança UnexpectedResponseException se não for JSON
+```
+
+Cada recurso responde num formato, e alguns respondem sucesso mesmo para um id inexistente. Confira o retorno de cada um.
 
 ## Versão da API
 
-As rotas ficam em `https://HOST/webservice/v1`. A versão é um `ApiVersion`; hoje só existe a `v1`, que é o padrão:
+As rotas ficam em `https://HOST/webservice/v1`. Hoje só existe a `v1`, que é o padrão; a versão pode ser passada explicitamente:
 
 ```php
 use Marcolin\IxcProvedor\ApiVersion;
 
-$version = ApiVersion::v1();   // ou ApiVersion::fromString('v1')
-$version->basePath();          // "webservice/v1"
+$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', null, ApiVersion::v1());
 ```
 
 ## Erros
@@ -39,6 +113,8 @@ Toda exceção de uma requisição implementa `Marcolin\IxcProvedor\Exception\Ix
 | Exceção | Quando |
 |---|---|
 | `ApiErrorException` | a API respondeu `{"type":"error"}`, o que costuma vir com HTTP 200, ou um status HTTP de erro |
+| `NotFoundException` | `update()` de um registro que não existe |
+| `UnexpectedResponseException` | a resposta não é a esperada para a rota, como uma página HTML de falha |
 | `AuthenticationException` | HTTP 401: token recusado (segredo errado ou usuário inexistente) |
 | `TransportException` | a requisição não teve resposta (DNS, conexão, TLS, timeout) |
 
