@@ -6,10 +6,11 @@ namespace Marcolin\IxcProvedor\Tests\Unit;
 
 use Http\Discovery\ClassDiscovery;
 use Http\Discovery\Exception\NotFoundException;
-use Http\Discovery\Strategy\MockClientStrategy;
 use Http\Mock\Client as MockClient;
 use InvalidArgumentException;
 use Marcolin\IxcProvedor\Client;
+use Marcolin\IxcProvedor\Exception\TransportException;
+use Marcolin\IxcProvedor\Resources;
 use Marcolin\IxcProvedor\Tests\Support\Fixture;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -38,7 +39,9 @@ final class ClientTest extends TestCase
         $http = new MockClient();
         $http->addResponse(Fixture::response('list_page'));
 
-        $page = Client::create('https://ixc.example.com', '6:not-a-real-secret', $http)->route('cliente')->list();
+        $page = Client::withHttpClient('https://ixc.example.com', '6:not-a-real-secret', $http)
+            ->route('cliente')
+            ->list();
 
         $request = $http->getLastRequest();
         self::assertInstanceOf(RequestInterface::class, $request);
@@ -52,8 +55,8 @@ final class ClientTest extends TestCase
         $http = new MockClient();
         $http->addResponse(Fixture::response('resource_protocol_listar'));
 
-        $protocol = Client::create('https://ixc.example.com', '6:not-a-real-secret', $http)
-            ->resource('gerar_protocolo_atendimento')
+        $protocol = Client::withHttpClient('https://ixc.example.com', '6:not-a-real-secret', $http)
+            ->resource(Resources::GERAR_PROTOCOLO_ATENDIMENTO)
             ->list()
             ->json();
 
@@ -63,25 +66,23 @@ final class ClientTest extends TestCase
         self::assertSame('listar', $request->getHeaderLine('ixcsoft'));
     }
 
-    public function testDiscoversAnInstalledHttpClientWhenNoneIsGiven(): void
+    public function testCreateSendsThroughTheBuiltInCurlClient(): void
     {
-        ClassDiscovery::prependStrategy(MockClientStrategy::class);
-
-        // Discovery builds its own mock, whose default answer is an empty 200.
-        $response = Client::create('https://ixc.example.com', '6:not-a-real-secret')
-            ->resource('gerar_protocolo_atendimento')
-            ->post();
-
-        self::assertSame(200, $response->status());
-        self::assertTrue($response->isEmpty());
+        // Port 1 on the loopback refuses at once: the failure comes from curl, so curl sent it.
+        try {
+            Client::create('http://127.0.0.1:1', '6:not-a-real-secret')->route('cliente')->list();
+            self::fail('Expected a TransportException.');
+        } catch (TransportException $exception) {
+            self::assertStringStartsWith('POST cliente got no answer: ', $exception->getMessage());
+            self::assertStringNotContainsString('not-a-real-secret', $exception->getMessage());
+        }
     }
 
-    public function testExplainsThatAnHttpClientIsMissing(): void
+    public function testExplainsThatPsr17FactoriesAreMissing(): void
     {
         ClassDiscovery::setStrategies([]);
 
         $this->expectException(NotFoundException::class);
-        $this->expectExceptionMessage('psr/http-client-implementation');
 
         Client::create('https://ixc.example.com', '6:not-a-real-secret');
     }
@@ -89,7 +90,7 @@ final class ClientTest extends TestCase
     public function testRejectsAMalformedTokenWithoutEchoingIt(): void
     {
         try {
-            Client::create('https://ixc.example.com', 'secret-without-user-id', new MockClient());
+            Client::withHttpClient('https://ixc.example.com', 'secret-without-user-id', new MockClient());
             self::fail('Expected an InvalidArgumentException.');
         } catch (InvalidArgumentException $exception) {
             self::assertStringNotContainsString('secret-without-user-id', $exception->getMessage());
@@ -100,6 +101,6 @@ final class ClientTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        Client::create('https://ixc.example.com/webservice/v1', '6:not-a-real-secret', new MockClient());
+        Client::create('https://ixc.example.com/webservice/v1', '6:not-a-real-secret');
     }
 }

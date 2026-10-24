@@ -8,16 +8,14 @@ PHP client for the **IXC Provedor** API (webservice), by IXCSoft.
 
 ## Requirements
 
-- PHP 7.4 or later
-- A PSR-18 HTTP client with PSR-17 factories. Guzzle 7 provides both.
+- PHP 7.4 or later, with the `curl` extension
+- A PSR-17 factory implementation, such as `nyholm/psr7` or `guzzlehttp/psr7`
 
 ## Installation
 
 ```sh
-composer require marcosmarcolin/ixc-provedor-client guzzlehttp/guzzle
+composer require marcosmarcolin/ixc-provedor-client nyholm/psr7
 ```
-
-Any PSR-18 client works (for example, `symfony/http-client` with `nyholm/psr7`); the installed one is discovered automatically.
 
 ## Getting started
 
@@ -31,11 +29,20 @@ $ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN');
 
 Pass only the instance's address, without `/webservice/v1`: the wiki examples include that path, but here it is rejected.
 
-With a self-signed certificate, pass an HTTP client configured to accept it:
+### Certificate
+
+The instance's certificate is verified. To accept a self-signed certificate, pass `true` as the third parameter, as the official client's `$selfSigned`:
 
 ```php
-$http = new \GuzzleHttp\Client(['verify' => false]);
-$ixc = Client::create('https://192.168.0.10', '6:YOUR_TOKEN', $http);
+$ixc = Client::create('https://192.168.0.10', '6:YOUR_TOKEN', true);
+```
+
+### Another HTTP client
+
+The package has its own HTTP client, on curl. To use another PSR-18 client, such as Guzzle or Symfony HttpClient, pass it to `withHttpClient()`; its own settings then decide the certificate, timeouts and proxy:
+
+```php
+$ixc = Client::withHttpClient('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', new \GuzzleHttp\Client(['verify' => false]));
 ```
 
 ## Routes
@@ -127,7 +134,7 @@ The routes live under `https://HOST/webservice/v1`. Today `v1` is the only versi
 ```php
 use Marcolin\IxcProvedor\ApiVersion;
 
-$ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', null, ApiVersion::v1());
+$ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', false, ApiVersion::v1());
 ```
 
 ## Errors

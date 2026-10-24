@@ -8,16 +8,14 @@ Cliente PHP para a API (webservice) do **IXC Provedor**, da IXCSoft.
 
 ## Requisitos
 
-- PHP 7.4 ou superior
-- Um cliente HTTP PSR-18 com as factories PSR-17. O Guzzle 7 já traz os dois.
+- PHP 7.4 ou superior, com a extensão `curl`
+- Uma implementação das factories PSR-17, como `nyholm/psr7` ou `guzzlehttp/psr7`
 
 ## Instalação
 
 ```sh
-composer require marcosmarcolin/ixc-provedor-client guzzlehttp/guzzle
+composer require marcosmarcolin/ixc-provedor-client nyholm/psr7
 ```
-
-Qualquer cliente PSR-18 serve (por exemplo, `symfony/http-client` com `nyholm/psr7`); o instalado é encontrado automaticamente.
 
 ## Primeiros passos
 
@@ -31,11 +29,20 @@ $ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN');
 
 Passe só o endereço da instância, sem `/webservice/v1`: os exemplos da wiki incluem esse caminho, mas aqui ele é recusado.
 
-Com certificado autoassinado, passe um cliente HTTP configurado para aceitá-lo:
+### Certificado
+
+O certificado da instância é verificado. Para aceitar um certificado autoassinado, passe `true` no terceiro parâmetro, como o `$selfSigned` do cliente oficial:
 
 ```php
-$http = new \GuzzleHttp\Client(['verify' => false]);
-$ixc = Client::create('https://192.168.0.10', '6:SEU_TOKEN', $http);
+$ixc = Client::create('https://192.168.0.10', '6:SEU_TOKEN', true);
+```
+
+### Outro cliente HTTP
+
+O pacote usa um cliente HTTP próprio, sobre o curl. Para usar outro cliente PSR-18, como o Guzzle ou o Symfony HttpClient, passe-o em `withHttpClient()`; aí o certificado, os timeouts e o proxy são configurados nele:
+
+```php
+$ixc = Client::withHttpClient('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', new \GuzzleHttp\Client(['verify' => false]));
 ```
 
 ## Rotas
@@ -127,7 +134,7 @@ As rotas ficam em `https://HOST/webservice/v1`. Hoje só existe a `v1`, que é o
 ```php
 use Marcolin\IxcProvedor\ApiVersion;
 
-$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', null, ApiVersion::v1());
+$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', false, ApiVersion::v1());
 ```
 
 ## Erros

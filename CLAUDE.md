@@ -8,12 +8,12 @@ This file is the specification of how the package works. Behavior changes start 
 
 **It is:**
 - A thin, typed client for `https://HOST/webservice/v1`, in IXC's own model: **routes** (the system's forms, such as `cliente`: list, find, insert, update, delete) and **resources** ("Recursos da API", actions such as activating a contract), which follow no common pattern. The two stay distinct in code and docs: `Route` and `Resource`, "rotas" and "recursos".
-- PHP 7.4 and 8.x (`^7.4 || ^8.0`): a new major is supported only after CI runs on it. HTTP through PSR-18 (`psr/http-client`) and PSR-17 (`psr/http-factory`), discovered with `php-http/discovery` when not injected.
+- PHP 7.4 and 8.x (`^7.4 || ^8.0`): a new major is supported only after CI runs on it. HTTP through PSR-18 (`psr/http-client`) and PSR-17 (`psr/http-factory`). `Client::create()` uses the built-in PSR-18 client on ext-curl, because PSR-18 has no TLS settings and the official client's `$selfSigned` option needs them; `Client::withHttpClient()` takes any PSR-18 client. The PSR-17 factories are discovered with `php-http/discovery`.
 
 **It is not** (out of scope; don't implement without an explicit decision):
 - Typed models or DTOs per route. Rows are associative arrays.
 - A dependency on Guzzle, Symfony or any framework. Framework adapters, if ever, go in separate packages.
-- Retries, caching or rate limiting. Those belong to the injected PSR-18 client or middleware.
+- Retries, caching or rate limiting. Those belong to a PSR-18 client given to `withHttpClient()`, or middleware.
 
 **Only a consumer of the public API.** Nothing from IXC Provedor's own source code goes into this repository, its docs, tests, commits or pull requests: no file, function or internal names, no messages or behavior known only from reading it. Behavior is documented only as observed through the API (captures), the public wiki or the official client.
 
@@ -45,14 +45,14 @@ A change is done only when all of these hold:
   - typed parameters, returns and properties;
   - immutable value objects (private properties, no setters, `with*()` methods returning a copy);
   - generics and array shapes in PHPDoc where PHP's types can't express them.
-- **Everything is testable:** dependencies are injected, never constructed deep inside. Discovery happens only in the `Client::create()` factory.
+- **Everything is testable:** dependencies are injected, never constructed deep inside. Discovery happens only in the `Client` factories.
 - Classes are `final` by default.
 - **Secrets never leak:** the token stays out of exception messages, `__debugInfo()`, logs, fixtures and git history. gitleaks (`.gitleaks.toml`, with a rule for the IXC token) runs in the `pre-commit` and `pre-push` hooks and in CI; never bypass it with `--no-verify`.
 - PHPStan at level `max`. No new `ignoreErrors` without a written justification.
 - Short comments, one line, only to explain why.
 - No `echo`/`print`. Errors become exceptions.
 - **Error messages:** `ApiErrorException::getMessage()` is the API's own text (Portuguese, `<br />` split and joined with `; `), so applications can show it to users as is; the status is in `statusCode()`, the raw text in `apiMessage()`. Messages written by this package (invalid arguments, transport and authentication failures) are in English and never echo the host or the token. No configurable language: it would need global state or reach only part of the messages.
-- No production dependencies besides the PSR interfaces and `php-http/discovery`.
+- No production dependencies besides the PSR interfaces, `php-http/discovery` and ext-curl.
 - Code, comments, CLAUDE.md, commits and PRs in English. `README.md` is in Portuguese, the language of the package's users, and `README.en.md` is its English translation; both start with a language switcher and change together.
 
 ## Verification
@@ -80,7 +80,9 @@ git config core.hooksPath .githooks   # once per clone: gitleaks before every co
 
 ```
 src/
-  Client.php              entry point: create(), route(), resource()
+  Client.php              entry point: create() (built-in client, $selfSigned), withHttpClient(), route(), resource()
+  Http/CurlHttpClient.php the built-in PSR-18 client, on ext-curl
+  Http/CurlException.php  PSR-18 network exception of the built-in client
   ApiVersion.php          webservice API version (v1), the "webservice/v1" path prefix
   Credentials.php         "<user id>:<secret>" token, Basic authorization header
   Transport.php           builds PSR-7 requests, sends them, maps HTTP failures to exceptions
@@ -101,7 +103,7 @@ src/
 
 What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor), plus the public wiki and the official client. Items marked *to confirm* still need a capture.
 
-- **Base URL:** `https://HOST/webservice/v1/<route or resource>`. Self-signed certificates are common; that is configured on the injected PSR-18 client, not here.
+- **Base URL:** `https://HOST/webservice/v1/<route or resource>`. As in the official client, the certificate is verified unless `$selfSigned` is `true` (`Client::create($host, $token, true)`). With `withHttpClient()`, TLS is that client's setting.
 - **API version:** the `v1` in the path is an `ApiVersion`, never a hardcoded string. Another version answers `{"type":"error","message":"Versão v2 do webservice não está disponível!"}` with HTTP 200 (`error_unknown_version`). `v1` is the only supported version and the default (`ApiVersion::latest()`), and `fromString()` rejects anything else. Supporting a new version means capturing its responses, adding it to `ApiVersion::SUPPORTED`, and branching only where its behavior differs.
 - **Authentication:** `Authorization: Basic base64("<user id>:<secret>")`; the secret is 64 hex characters. A wrong secret or unknown user answers HTTP 401 with an HTML page, not JSON (`error_wrong_secret`, `error_unknown_user`). A client IP outside the networks allowed for the user's group answers 200 with `{"type":"error"}`.
 - **Errors are mostly HTTP 200** with `{"type":"error","message":...}`: unknown route or resource, unknown version, validation failures, a blocked IP, and resource errors. So a response is an error when its JSON has `type` `error`, whatever the status; any other status of 400 or more is an error too. An unexpected failure can answer 200 with an HTML `<div>` (`list_invalid_field`).
@@ -146,6 +148,6 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
 3. [x] `Transport` and exceptions.
 4. [x] `Query`, `Page` and `Route` (list, find, create, update, delete, each).
 5. [x] `Resource` and `Response`.
-6. [x] `Client::create()` with discovery.
+6. [x] `Client::create()` with the built-in client, and `withHttpClient()`.
 7. [x] Complete both READMEs (pt-BR and en) with usage examples.
 8. [ ] First release (`v0.1.0`).

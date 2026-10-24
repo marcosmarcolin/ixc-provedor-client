@@ -8,7 +8,8 @@ First release: a client for the public IXC Provedor API (`/webservice/v1`), cove
 
 ### Added
 
-- `Client::create($host, $token)`, discovering an installed PSR-18 client and the PSR-17 factories; an HTTP client can be injected, for example to accept a self-signed certificate.
+- `Client::create($host, $token, $selfSigned = false)` on a built-in HTTP client (ext-curl): as in the official client, the certificate is verified unless `$selfSigned` is `true`.
+- `Client::withHttpClient($host, $token, $httpClient)` for any PSR-18 client, such as Guzzle or Symfony HttpClient.
 - Routes (the system's forms) through `Client::route($name)`:
   - `list()` with `Query` (condition, `grid_param` filters, paging and sorting) and `each()` over every page;
   - `find()`, `create()` (also with files, as multipart form data, through `Attachment`), `update()`, `replace()`, `patch()` and `delete()`;
