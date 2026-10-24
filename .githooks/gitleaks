@@ -1,0 +1,6 @@
+#!/bin/sh
+# Runs gitleaks from Docker so nothing is installed on the host. Usage: gitleaks <gitleaks git args>
+set -e
+root=$(git rev-parse --show-toplevel)
+exec docker run --rm -v "$root:/repo" -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 \
+    git /repo --config /repo/.gitleaks.toml --redact --no-banner "$@"

@@ -28,8 +28,9 @@ Never implement from memory. When unsure, check the wiki or capture a real respo
 
 A change is done only when all of these hold:
 1. **It is tested.** New behavior comes with tests, and a bug fix comes with a test that fails without the fix. HTTP is faked with `php-http/mock-client`; tests never hit the network.
-2. **The quality tools pass:** PHPUnit, phpcs (PSR-12) and PHPStan at level `max`, locally in Docker and in CI, on every PHP version from 7.4 to the latest.
-3. **The docs are current:** README, CLAUDE.md and examples match the behavior.
+2. **No secrets:** gitleaks passes, locally (hooks) and in CI.
+3. **The quality tools pass:** PHPUnit, phpcs (PSR-12) and PHPStan at level `max`, locally in Docker and in CI, on every PHP version from 7.4 to the latest.
+4. **The docs are current:** README, CLAUDE.md and examples match the behavior.
 
 ## Code rules
 
@@ -42,7 +43,7 @@ A change is done only when all of these hold:
   - generics and array shapes in PHPDoc where PHP's types can't express them.
 - **Everything is testable:** dependencies are injected, never constructed deep inside. Discovery happens only in the `Client::create()` factory.
 - Classes are `final` by default.
-- **Secrets never leak:** the token stays out of exception messages, `__debugInfo()` and logs.
+- **Secrets never leak:** the token stays out of exception messages, `__debugInfo()`, logs, fixtures and git history. gitleaks (`.gitleaks.toml`, with a rule for the IXC token) runs in the `pre-commit` and `pre-push` hooks and in CI; never bypass it with `--no-verify`.
 - PHPStan at level `max`. No new `ignoreErrors` without a written justification.
 - Short comments, one line, only to explain why.
 - No `echo`/`print`. Errors become exceptions.
@@ -58,6 +59,7 @@ docker compose run --rm php composer install
 docker compose run --rm php vendor/bin/phpunit
 docker compose run --rm php composer lint
 PHP_VERSION=8.4 docker compose build php && PHP_VERSION=8.4 docker compose run --rm php vendor/bin/phpunit
+git config core.hooksPath .githooks   # once per clone: gitleaks before every commit and push
 ```
 
 ## Workflow
