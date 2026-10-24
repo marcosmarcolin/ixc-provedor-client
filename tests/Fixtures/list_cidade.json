@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"qtype\":\"anon-da9393bc\",\"query\":\"0\",\"oper\":\">\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"anon-da9393bc\",\"sortorder\":\"anon-d68d3ff6\"}",
+        "method": "POST",
+        "path": "webservice/v1/cidade",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"page\":\"1\",\"total\":\"5566\",\"registros\":[{\"codigo\":\"\",\"id\":\"1\",\"nome\":\"anon-e0305be1\",\"uf\":\"16\",\"cod_ibge\":\"1761495\",\"regiao\":\"\",\"cod_siafi\":\"\",\"cod_cidade_nfse_forquilhinha_sc\":\"\",\"origem\":\"N\"},{\"codigo\":\"\",\"id\":\"2\",\"nome\":\"anon-7ae08a83\",\"uf\":\"16\",\"cod_ibge\":\"1054871\",\"regiao\":\"\",\"cod_siafi\":\"\",\"cod_cidade_nfse_forquilhinha_sc\":\"\",\"origem\":\"N\"}]}"
+    }
+}

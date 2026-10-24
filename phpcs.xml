@@ -2,6 +2,7 @@
 <ruleset name="ixc-provedor-client">
     <file>src</file>
     <file>tests</file>
+    <file>tools</file>
     <arg name="colors"/>
     <arg value="sp"/>
     <rule ref="PSR12"/>
