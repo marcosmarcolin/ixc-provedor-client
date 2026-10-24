@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": [],
+        "method": "POST",
+        "path": "webservice/v1/gerar_protocolo_atendimento",
+        "headers": {
+            "ixcsoft": "listar"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "\"20261024162332986229\""
+    }
+}

@@ -100,10 +100,10 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
 - **Base URL:** `https://HOST/webservice/v1/<table or resource>`. Self-signed certificates are common; that is configured on the injected PSR-18 client, not here.
 - **API version:** the `v1` in the path is an `ApiVersion`, never a hardcoded string. Another version answers `{"type":"error","message":"Versão v2 do webservice não está disponível!"}` with HTTP 200 (`error_unknown_version`). `v1` is the only supported version and the default (`ApiVersion::latest()`), and `fromString()` rejects anything else. Supporting a new version means capturing its responses, adding it to `ApiVersion::SUPPORTED`, and branching only where its behavior differs.
 - **Authentication:** `Authorization: Basic base64("<user id>:<secret>")`; the secret is 64 hex characters. A wrong secret or unknown user answers HTTP 401 with an HTML page, not JSON (`error_wrong_secret`, `error_unknown_user`). A client IP outside the networks allowed for the user's group answers 200 with `{"type":"error"}`.
-- **Errors are mostly HTTP 200** with `{"type":"error","message":...}`: unknown table or resource, unknown version, validation failures and a blocked IP. So a response is an error when its JSON has `type` `error`, whatever the status; any other status of 400 or more is an error too. An unexpected failure can answer 200 with an HTML `<div>` (`list_invalid_field`).
-- **False successes:** some operations answer `{"type":"success"}` for an id that does not exist: `PUT` and `DELETE` on a table (`update_not_found`, `delete_not_found`). Never read success as "the record existed".
+- **Errors are mostly HTTP 200** with `{"type":"error","message":...}`: unknown table or resource, unknown version, validation failures, a blocked IP, and resource errors. So a response is an error when its JSON has `type` `error`, whatever the status; any other status of 400 or more is an error too. An unexpected failure can answer 200 with an HTML `<div>` (`list_invalid_field`).
+- **False successes:** some operations answer `{"type":"success"}` for an id that does not exist: `PUT` and `DELETE` on a table (`update_not_found`, `delete_not_found`) and the resource `cliente_contrato_15464` (`resource_contract_status_missing`). Never read success as "the record existed".
 - **Messages** may hold HTML line breaks (`<br />`) between several validation errors. *To confirm*: one capture (blocked IP) came double-encoded (`n\u00c3\u00a3o`), the others are plain UTF-8 escapes.
-- **Content type** is not reliable: `text/x-json; charset=utf-8` on listings and writes, `text/html; charset=ISO-8859-1` on some errors. The header `ixc-type-response: application/json` makes listings answer `application/json`. Decide by the body, never by the content type.
+- **Content type** is not reliable: `text/x-json; charset=utf-8` on listings and writes, `text/html; charset=ISO-8859-1` on some errors and on resources. The header `ixc-type-response: application/json` makes listings answer `application/json`. Decide by the body, never by the content type.
 - **Table routes:**
   - list: `POST /<table>` with header `ixcsoft: listar`; the body (JSON or form data, both accepted) has `qtype`, `query`, `oper`, `page`, `rp`, `sortname`, `sortorder`, and optionally `grid_param`, a JSON-encoded string of `[{"TB": field, "OP": operator, "P": value}]`. `GET` with the header answers the same (`list_get_method`). The answer is `{"page": "1", "total": ..., "registros": [...]}`; `total` is sometimes an int and sometimes a numeric string (`list_page`, `list_cidade`), and an empty listing has no `registros` key: `{"page":"1","total":0}` (`list_empty`). Every value in a row is a string.
   - find: a listing with `qtype` `<table>.id`, `oper` `=`.
@@ -112,19 +112,18 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
   - update: `PUT /<table>/<id>` with the full row as JSON; a partial row fails validation. Success is `{"type":"success","message":"Registro atualizado com sucesso!","id":"2",...}`, also for an id that does not exist. So `Table::update()` reads the record first (`NotFoundException` when missing), merges the changes and writes the whole row back; `Table::replace()` is the raw `PUT`.
   - patch: `PATCH /<table>/<id>` validates like `PUT`, so it needs the full row too (`patch`, `patch_partial`).
   - delete: `DELETE /<table>/<id>`; success is `{"type":"success","message":"Registro 2 excluido com sucesso!"}`, also when the id does not exist.
-- **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list; the wiki documents each one's parameters (`recursos_api.php`). *To confirm with captures*:
-  - called like a listing (`ixcsoft: listar`) with their own parameters: `get_boleto`, `desbloqueio_confianca`, `desconectar_clientes`, `cliente_contrato_ativar_cliente`, `gerar_protocolo_atendimento`, `liberacao_reducao_contrato_29157`...
-  - called with a plain `POST`: `su_oss_chamado_fechar`, `su_oss_chamado_analisar`, `su_oss_chamado_alterar_setor`, `fn_areceber_recebimentos_baixas_novo`, `su_transf_atendimento_26466`...
-  - the answer format varies (JSON, a bare number, base64 content), so a resource returns a raw `Response`.
+- **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list; the wiki documents each one's parameters (`recursos_api.php`).
+  - The wiki calls them in two ways: `$api->get()`, which is `POST` with `ixcsoft: listar` (`get_boleto`, `desbloqueio_confianca`, `gerar_protocolo_atendimento`, `cliente_contrato_15464`...), and `$api->post()`, a plain `POST` (`su_oss_chamado_fechar`, `su_oss_chamado_analisar`, `radusuarios_25452`...). `Resource::list()` and `Resource::post()` mirror them. Parameters go as given (the wiki already writes dates as `d/m/Y`); a JSON body works like the official client's form data (`resource_protocol_listar`, `resource_protocol_form`).
+  - Answers seen: a JSON string (`gerar_protocolo_atendimento` → `"20261024162331914000"`, 20 digits, the same with or without `ixcsoft: listar`), a JSON object with `type` (`resource_contract_status_missing`), `{"type":"error"}` (`resource_trust_unlock_missing`, `resource_close_order_missing`), and an empty body with 200 (`get_boleto` with a missing invoice, `resource_boleto_missing`). The wiki also shows base64 content (`get_boleto` with `base64` `S`) and binary content (`base64` `N`), *to confirm*. So a resource returns a raw `Response`.
 - **Not copied from the official client:** it runs every decoded value through `utf8_decode()`, turning UTF-8 into ISO-8859-1; this client returns UTF-8 as decoded.
 
 ## Roadmap
 
 1. [x] Scaffold: Composer, Docker, PHPUnit, PHPStan max, phpcs, CI, `Credentials`.
-2. [ ] Capture real responses from an instance as anonymized fixtures: tables done (`cliente`), resources pending.
+2. [x] Capture real responses from an instance as anonymized fixtures (`cliente` and representative resources).
 3. [x] `Transport` and exceptions.
 4. [x] `Query`, `Page` and `Table` (list, find, create, update, delete, each).
-5. [ ] `Resource` and `Response`.
+5. [x] `Resource` and `Response`.
 6. [ ] `Client::create()` with discovery.
 7. [ ] Complete both READMEs (pt-BR and en) and examples.
 8. [ ] First release (`v0.1.0`).

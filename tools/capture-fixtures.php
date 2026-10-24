@@ -3,7 +3,7 @@
 /**
  * Captures real responses from the IXC Provedor instance configured in .env as fixtures.
  *
- * Usage (Docker only): docker compose run --rm php composer capture
+ * Usage (Docker only): docker compose run --rm php composer capture [-- tables|resources]
  * Raw responses go to tests/Fixtures/raw/ (gitignored); anonymized ones to tests/Fixtures/.
  * The write scenarios create, change and delete a client: point it at a disposable instance only.
  */
@@ -43,6 +43,60 @@ $fakeSecret = str_repeat('0', 64);
 $json = ['Content-Type' => 'application/json'];
 $listing = ['ixcsoft' => 'listar', 'Content-Type' => 'application/json'];
 $clients = 'webservice/v1/cliente';
+
+$groups = array_slice($argv, 1);
+$wants = static function (string $group) use ($groups): bool {
+    return $groups === [] || in_array($group, $groups, true);
+};
+
+// Resources, called with ids that do not exist: their errors and formats need no data on the instance.
+if ($wants('resources')) {
+    $empty = '{}';
+    $resource = static function (string $name): string {
+        return 'webservice/v1/' . $name;
+    };
+    $recorder->record('resource_protocol_listar', 'POST', $resource('gerar_protocolo_atendimento'), $listing, $empty);
+    $recorder->record('resource_protocol_post', 'POST', $resource('gerar_protocolo_atendimento'), $json, $empty);
+    $protocol = $resource('gerar_protocolo_atendimento');
+    $recorder->record('resource_protocol_form', 'POST', $protocol, ['ixcsoft' => 'listar'], []);
+    $recorder->record(
+        'resource_contract_status_missing',
+        'POST',
+        $resource('cliente_contrato_15464'),
+        $listing,
+        (string) json_encode(['id_contrato' => '999999999'])
+    );
+    $recorder->record(
+        'resource_trust_unlock_missing',
+        'POST',
+        $resource('desbloqueio_confianca'),
+        $listing,
+        (string) json_encode(['id' => '999999999'])
+    );
+    $recorder->record('resource_boleto_missing', 'POST', $resource('get_boleto'), $listing, (string) json_encode([
+        'boletos' => '999999999',
+        'juro' => 'N',
+        'multa' => 'N',
+        'atualiza_boleto' => 'N',
+        'tipo_boleto' => 'arquivo',
+        'base64' => 'S',
+    ]));
+    $closeOrder = $resource('su_oss_chamado_fechar');
+    $recorder->record('resource_close_order_missing', 'POST', $closeOrder, $json, (string) json_encode([
+        'id_chamado' => '999999999',
+        'data_inicio' => '02/12/2019 10:30:00',
+        'data_final' => '04/12/2019 14:16:00',
+        'mensagem' => 'teste',
+        'gera_comissao' => 'N',
+        'id_su_diagnostico' => '',
+        'finaliza_processo' => 'S',
+        'status' => 'F',
+        'id_tecnico' => '',
+    ]));
+}
+if (!$wants('tables')) {
+    exit(0);
+}
 
 // Reads.
 $page = $recorder->record('list_page', 'POST', $clients, $listing, Requests::query('cliente.id', '>', '0'));
