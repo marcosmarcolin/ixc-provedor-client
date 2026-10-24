@@ -8,6 +8,8 @@ use RuntimeException;
 
 /**
  * The API answered an error: a body with "type": "error" (usually with HTTP 200), or an HTTP error status.
+ *
+ * The message is the API's own text, in Portuguese, so it can be shown to users as is.
  */
 final class ApiErrorException extends RuntimeException implements IxcException
 {
@@ -24,11 +26,7 @@ final class ApiErrorException extends RuntimeException implements IxcException
         $this->responseBody = $responseBody;
 
         $messages = self::split($apiMessage);
-        parent::__construct(sprintf(
-            'The IXC Provedor API answered an error (HTTP %d)%s',
-            $statusCode,
-            $messages === [] ? '.' : ': ' . implode('; ', $messages)
-        ));
+        parent::__construct($messages === [] ? sprintf('HTTP %d', $statusCode) : implode('; ', $messages));
     }
 
     public function statusCode(): int

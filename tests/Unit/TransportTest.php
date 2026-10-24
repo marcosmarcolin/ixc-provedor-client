@@ -119,7 +119,7 @@ final class TransportTest extends TestCase
             self::assertSame(200, $exception->statusCode());
             self::assertSame([$message], $exception->messages());
             self::assertSame((string) Fixture::response($fixture)->getBody(), $exception->responseBody());
-            self::assertStringContainsString($message, $exception->getMessage());
+            self::assertSame($message, $exception->getMessage());
         }
     }
 
@@ -135,6 +135,7 @@ final class TransportTest extends TestCase
             self::assertContains('Preencha o campo Telefone Celular', $exception->messages());
             self::assertContains('CPF/CNPJ obrigatório!', $exception->messages());
             self::assertGreaterThan(10, count($exception->messages()));
+            self::assertSame(implode('; ', $exception->messages()), $exception->getMessage());
         }
     }
 
@@ -173,10 +174,13 @@ final class TransportTest extends TestCase
             '{"type":"error","message":"Recurso chave_integrador não permite deletar registro(s)!"}'
         ));
 
-        $this->expectException(ApiErrorException::class);
-        $this->expectExceptionMessage('(HTTP 405): Recurso chave_integrador não permite deletar registro(s)!');
-
-        $this->transport()->send('DELETE', 'chave_integrador/1');
+        try {
+            $this->transport()->send('DELETE', 'chave_integrador/1');
+            self::fail('Expected an ApiErrorException.');
+        } catch (ApiErrorException $exception) {
+            self::assertSame(405, $exception->statusCode());
+            self::assertSame('Recurso chave_integrador não permite deletar registro(s)!', $exception->getMessage());
+        }
     }
 
     public function testFallsBackToTheReasonPhraseWhenAnHttpErrorHasNoJson(): void
@@ -189,7 +193,18 @@ final class TransportTest extends TestCase
         } catch (ApiErrorException $exception) {
             self::assertSame(502, $exception->statusCode());
             self::assertSame(['Bad Gateway'], $exception->messages());
+            self::assertSame('Bad Gateway', $exception->getMessage());
         }
+    }
+
+    public function testUsesTheStatusAsMessageWhenThereIsNoTextAtAll(): void
+    {
+        $this->http->addResponse(new Response(599, [], ''));
+
+        $this->expectException(ApiErrorException::class);
+        $this->expectExceptionMessage('HTTP 599');
+
+        $this->transport()->send('POST', 'cliente');
     }
 
     public function testWrapsClientFailuresWithoutTheToken(): void
