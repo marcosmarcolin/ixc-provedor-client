@@ -8,7 +8,7 @@ This file is the specification of how the package works. Behavior changes start 
 
 **It is:**
 - A thin, typed client for `https://HOST/webservice/v1`, in IXC's own model: **routes** (the system's forms, such as `cliente`: list, find, insert, update, delete) and **resources** ("Recursos da API", actions such as activating a contract), which follow no common pattern. The two stay distinct in code and docs: `Route` and `Resource`, "rotas" and "recursos".
-- PHP >= 7.4. HTTP through PSR-18 (`psr/http-client`) and PSR-17 (`psr/http-factory`), discovered with `php-http/discovery` when not injected.
+- PHP 7.4 and 8.x (`^7.4 || ^8.0`): a new major is supported only after CI runs on it. HTTP through PSR-18 (`psr/http-client`) and PSR-17 (`psr/http-factory`), discovered with `php-http/discovery` when not injected.
 
 **It is not** (out of scope; don't implement without an explicit decision):
 - Typed models or DTOs per route. Rows are associative arrays.

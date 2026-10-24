@@ -26,7 +26,7 @@
     "docs": "https://wikiapiprovedor.ixcsoft.com.br"
   },
   "require": {
-    "php": ">=7.4",
+    "php": "^7.4 || ^8.0",
     "ext-json": "*",
     "php-http/discovery": "^1.19",
     "psr/http-client": "^1.0",
