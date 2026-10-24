@@ -27,6 +27,7 @@
   },
   "require": {
     "php": "^7.4 || ^8.0",
+    "ext-curl": "*",
     "ext-json": "*",
     "php-http/discovery": "^1.19",
     "psr/http-client": "^1.0",
@@ -40,7 +41,8 @@
     "squizlabs/php_codesniffer": "^3.13"
   },
   "suggest": {
-    "guzzlehttp/guzzle": "A PSR-18 HTTP client with PSR-17 factories, discovered automatically"
+    "nyholm/psr7": "PSR-17 factories, discovered automatically (guzzlehttp/psr7 works too)",
+    "guzzlehttp/guzzle": "To use Guzzle instead of the built-in client, with Client::withHttpClient()"
   },
   "autoload": {
     "psr-4": {

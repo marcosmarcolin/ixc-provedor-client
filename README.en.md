@@ -8,16 +8,14 @@ PHP client for the **IXC Provedor** API (webservice), by IXCSoft.
 
 ## Requirements
 
-- PHP 7.4 or later
-- A PSR-18 HTTP client with PSR-17 factories. Guzzle 7 provides both.
+- PHP 7.4 or later, with the `curl` extension
+- A PSR-17 factory implementation, such as `nyholm/psr7` or `guzzlehttp/psr7`
 
 ## Installation
 
 ```sh
-composer require marcosmarcolin/ixc-provedor-client guzzlehttp/guzzle
+composer require marcosmarcolin/ixc-provedor-client nyholm/psr7
 ```
-
-Any PSR-18 client works (for example, `symfony/http-client` with `nyholm/psr7`); the installed one is discovered automatically.
 
 ## Getting started
 
@@ -31,11 +29,26 @@ $ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN');
 
 Pass only the instance's address, without `/webservice/v1`: the wiki examples include that path, but here it is rejected.
 
-With a self-signed certificate, pass an HTTP client configured to accept it:
+### Certificate
+
+By default, the instance's certificate is **not verified**, so self-signed certificates, common on IXC Provedor, work with no setup, as the official client's `$selfSigned = true` does. That leaves the connection open to interception. To verify it, pass a `Tls`:
 
 ```php
-$http = new \GuzzleHttp\Client(['verify' => false]);
-$ixc = Client::create('https://192.168.0.10', '6:YOUR_TOKEN', $http);
+use Marcolin\IxcProvedor\Tls;
+
+// The instance's own certificate (the address must match the certificate's)
+$ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', Tls::verifyWith('/path/ixc.pem'));
+
+// The system's certificate authorities, for a valid certificate (Let's Encrypt, for example)
+$ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', Tls::verify());
+```
+
+### Another HTTP client
+
+The package has its own HTTP client, on curl. To use another PSR-18 client, such as Guzzle or Symfony HttpClient, pass it to `withHttpClient()`; its own settings then decide the certificate, timeouts and proxy:
+
+```php
+$ixc = Client::withHttpClient('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', new \GuzzleHttp\Client(['verify' => false]));
 ```
 
 ## Routes

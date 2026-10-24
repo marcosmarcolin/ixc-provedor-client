@@ -8,16 +8,14 @@ Cliente PHP para a API (webservice) do **IXC Provedor**, da IXCSoft.
 
 ## Requisitos
 
-- PHP 7.4 ou superior
-- Um cliente HTTP PSR-18 com as factories PSR-17. O Guzzle 7 já traz os dois.
+- PHP 7.4 ou superior, com a extensão `curl`
+- Uma implementação das factories PSR-17, como `nyholm/psr7` ou `guzzlehttp/psr7`
 
 ## Instalação
 
 ```sh
-composer require marcosmarcolin/ixc-provedor-client guzzlehttp/guzzle
+composer require marcosmarcolin/ixc-provedor-client nyholm/psr7
 ```
-
-Qualquer cliente PSR-18 serve (por exemplo, `symfony/http-client` com `nyholm/psr7`); o instalado é encontrado automaticamente.
 
 ## Primeiros passos
 
@@ -31,11 +29,26 @@ $ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN');
 
 Passe só o endereço da instância, sem `/webservice/v1`: os exemplos da wiki incluem esse caminho, mas aqui ele é recusado.
 
-Com certificado autoassinado, passe um cliente HTTP configurado para aceitá-lo:
+### Certificado
+
+Por padrão, o certificado da instância **não é verificado**, então certificados autoassinados, comuns no IXC Provedor, funcionam sem configuração, como o `$selfSigned = true` do cliente oficial. Isso deixa a conexão sujeita a interceptação. Para verificar, passe um `Tls`:
 
 ```php
-$http = new \GuzzleHttp\Client(['verify' => false]);
-$ixc = Client::create('https://192.168.0.10', '6:SEU_TOKEN', $http);
+use Marcolin\IxcProvedor\Tls;
+
+// O certificado da própria instância (o endereço precisa bater com o do certificado)
+$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', Tls::verifyWith('/caminho/ixc.pem'));
+
+// As autoridades certificadoras do sistema, para um certificado válido (Let's Encrypt, por exemplo)
+$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', Tls::verify());
+```
+
+### Outro cliente HTTP
+
+O pacote usa um cliente HTTP próprio, sobre o curl. Para usar outro cliente PSR-18, como o Guzzle ou o Symfony HttpClient, passe-o em `withHttpClient()`; aí o certificado, os timeouts e o proxy são configurados nele:
+
+```php
+$ixc = Client::withHttpClient('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', new \GuzzleHttp\Client(['verify' => false]));
 ```
 
 ## Rotas

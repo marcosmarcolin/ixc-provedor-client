@@ -1,0 +1,143 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Marcolin\IxcProvedor\Http;
+
+use Marcolin\IxcProvedor\Tls;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use RuntimeException;
+
+/**
+ * The built-in PSR-18 client, on ext-curl: PSR-18 has no TLS settings, and accepting a self-signed
+ * certificate by default needs them.
+ */
+final class CurlHttpClient implements ClientInterface
+{
+    private ResponseFactoryInterface $responseFactory;
+
+    private StreamFactoryInterface $streamFactory;
+
+    private Tls $tls;
+
+    private int $timeout;
+
+    private int $connectTimeout;
+
+    /**
+     * @param int $timeout seconds for the whole request
+     * @param int $connectTimeout seconds to connect
+     */
+    public function __construct(
+        ResponseFactoryInterface $responseFactory,
+        StreamFactoryInterface $streamFactory,
+        ?Tls $tls = null,
+        int $timeout = 60,
+        int $connectTimeout = 10
+    ) {
+        $this->responseFactory = $responseFactory;
+        $this->streamFactory = $streamFactory;
+        $this->tls = $tls ?? Tls::acceptSelfSigned();
+        $this->timeout = $timeout;
+        $this->connectTimeout = $connectTimeout;
+    }
+
+    public function sendRequest(RequestInterface $request): ResponseInterface
+    {
+        $curl = curl_init();
+        if ($curl === false) {
+            throw new RuntimeException('curl_init() failed.');
+        }
+
+        $head = [];
+        curl_setopt_array($curl, $this->options($request));
+        curl_setopt($curl, CURLOPT_HEADERFUNCTION, static function ($curl, string $line) use (&$head): int {
+            $head[] = $line;
+
+            return strlen($line);
+        });
+
+        $body = curl_exec($curl);
+        if (!is_string($body)) {
+            $error = curl_error($curl);
+            curl_close($curl);
+
+            throw new CurlException($error, $request);
+        }
+        $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        curl_close($curl);
+
+        /** @var list<string> $head */
+        $response = $this->responseFactory->createResponse($status)
+            ->withBody($this->streamFactory->createStream($body));
+        foreach (self::headers($head) as $name => $values) {
+            $response = $response->withHeader($name, $values);
+        }
+
+        return $response;
+    }
+
+    /**
+     * The curl options for a request, TLS included.
+     *
+     * @return array<int, mixed>
+     */
+    public function options(RequestInterface $request): array
+    {
+        $headers = [];
+        foreach ($request->getHeaders() as $name => $values) {
+            $headers[] = $name . ': ' . implode(', ', $values);
+        }
+        // Without it, curl adds "Expect: 100-continue" to larger bodies and waits for the server.
+        $headers[] = 'Expect:';
+
+        $options = [
+            CURLOPT_URL => (string) $request->getUri(),
+            CURLOPT_CUSTOMREQUEST => $request->getMethod(),
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_TIMEOUT => $this->timeout,
+            CURLOPT_CONNECTTIMEOUT => $this->connectTimeout,
+            CURLOPT_SSL_VERIFYPEER => $this->tls->verifies(),
+            CURLOPT_SSL_VERIFYHOST => $this->tls->verifies() ? 2 : 0,
+        ];
+        if ($this->tls->certificate() !== null) {
+            $options[CURLOPT_CAINFO] = $this->tls->certificate();
+        }
+        $body = (string) $request->getBody();
+        if ($body !== '') {
+            $options[CURLOPT_POSTFIELDS] = $body;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Header lines of the last response (after any 100 Continue), grouped by name.
+     *
+     * @param list<string> $lines
+     * @return array<string, list<string>>
+     */
+    public static function headers(array $lines): array
+    {
+        $headers = [];
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (strpos($line, 'HTTP/') === 0) {
+                $headers = [];
+                continue;
+            }
+            $parts = explode(':', $line, 2);
+            if (count($parts) === 2 && trim($parts[0]) !== '') {
+                $headers[trim($parts[0])][] = trim($parts[1]);
+            }
+        }
+
+        return $headers;
+    }
+}
