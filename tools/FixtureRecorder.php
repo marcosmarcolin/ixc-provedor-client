@@ -9,6 +9,11 @@ namespace Marcolin\IxcProvedor\Tools;
  */
 final class FixtureRecorder
 {
+    /** Bodies kept whole up to this size; longer or binary ones (PDFs) keep only their start. */
+    private const MAX_BODY = 2048;
+
+    private const KEPT_PREFIX = 512;
+
     private HttpCapture $http;
 
     private Anonymizer $anonymizer;
@@ -47,15 +52,16 @@ final class FixtureRecorder
 
         $decoded = json_decode($response['body'], true);
         $isJson = is_array($decoded);
+        $isBinary = preg_match('//u', $response['body']) !== 1;
         $request = ['method' => $method, 'path' => $path, 'headers' => $headers, 'body' => self::describe($body)];
         // json_encode()'s defaults are the server's, so the escapes stay as captured.
         $responseBody = $isJson ? (string) json_encode($this->anonymizer->anonymize($decoded)) : $response['body'];
 
-        $this->write('raw/' . $name, ['request' => $request, 'response' => $response]);
+        $this->write('raw/' . $name, ['request' => $request, 'response' => self::storable($response, PHP_INT_MAX)]);
         $this->write($name, [
             // Write bodies are built from a listed row, so they carry the same personal data.
             'request' => ['body' => $this->requestBody($headers, self::describe($body))] + $request,
-            'response' => ['status' => $response['status'], 'headers' => $response['headers'], 'body' => $responseBody],
+            'response' => self::storable(['body' => $responseBody] + $response, $isJson ? PHP_INT_MAX : self::MAX_BODY),
         ]);
 
         fprintf(
@@ -64,10 +70,36 @@ final class FixtureRecorder
             $name,
             $response['status'],
             $response['headers']['content-type'] ?? '-',
-            $isJson ? 'json' : 'not json, review by hand'
+            $isJson ? 'json' : ($isBinary ? 'binary, start kept' : 'not json, review by hand')
         );
 
         return $response;
+    }
+
+    /**
+     * A body that JSON can hold as text stays "body"; a binary one goes as "body_base64". Past $max bytes,
+     * only the start is kept, with "body_length" telling the real size: a PDF's start is its structure,
+     * while the rest holds the customer's data, which cannot be anonymized.
+     *
+     * @param array{status: int, headers: array<string, string>, body: string} $response
+     * @return array<string, mixed>
+     */
+    private static function storable(array $response, int $max): array
+    {
+        $body = $response['body'];
+        $stored = ['status' => $response['status'], 'headers' => $response['headers']];
+        $truncated = strlen($body) > $max;
+        $kept = $truncated ? substr($body, 0, self::KEPT_PREFIX) : $body;
+        if (preg_match('//u', $kept) === 1) {
+            $stored['body'] = $kept;
+        } else {
+            $stored['body_base64'] = base64_encode($kept);
+        }
+        if ($truncated) {
+            $stored['body_length'] = strlen($body);
+        }
+
+        return $stored;
     }
 
     /**

@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"boletos\":\"2\",\"juro\":\"N\",\"multa\":\"N\",\"atualiza_boleto\":\"N\",\"tipo_boleto\":\"dados\"}",
+        "method": "POST",
+        "path": "webservice/v1/get_boleto",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/html; charset=ISO-8859-1"
+        },
+        "body": "[{\"Endereco\":\"anon-1e770e03\",\"CEP\":\"anon-e3b68988\",\"Cidade\":\"anon-ea806e9a\",\"Estado\":\"anon-8e54486a\",\"Estado_sigla\":\"anon-32da6721\",\"cedente_nome\":\"anon-6b3572fc\",\"obs\":\"\",\"aceite\":\"N\",\"especie\":\"anon-0d69dfb6\",\"especie_doc\":\"anon-6a3aea19\",\"sacador_razao\":\"anon-6b3572fc\",\"convenio\":\"0000000\",\"carteira\":\"00\",\"numero_documento\":\"2\",\"nosso_numero\":\"anon-e876f7af\",\"id_receber\":\"2\",\"data_vencimento\":\"anon-896ac4b0\",\"linha1\":\"anon-b873b5ed\",\"linha2\":\"anon-3f5b9aea\",\"linha3\":\"\",\"Instrucao1\":\"\",\"Instrucao2\":\"\",\"data_documento\":\"anon-77e735c8\",\"data_processamento\":\"anon-77e735c8\",\"valor_boleto\":\"anon-bf49cd8d\",\"sacado\":\"anon-11116ad5\",\"CPF\":\"anon-e0897535\",\"cliente_fone\":\"\",\"ie_identidade\":\"\",\"agencia_codigo\":\"anon-44c17d94\",\"codigo_banco_com_dv\":\"anon-5ba2dfa9\",\"linha_digitavel\":\"anon-1e72a5d1\",\"cliente_telefone_celular\":\"\",\"codigo_barras\":\"13698214733369821473336982147333698214733369\",\"local_pagamento\":\"anon-6e70b6e2\",\"id_cliente\":\"18\"}]"
+    }
+}

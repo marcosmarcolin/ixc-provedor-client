@@ -14,6 +14,7 @@ use Marcolin\IxcProvedor\Tools\Anonymizer;
 use Marcolin\IxcProvedor\Tools\FixtureRecorder;
 use Marcolin\IxcProvedor\Tools\HttpCapture;
 use Marcolin\IxcProvedor\Tools\Requests;
+use Marcolin\IxcProvedor\Tools\TestData;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -32,8 +33,9 @@ if ($setting('IXC_HOST') === '' || $setting('IXC_TOKEN') === '') {
     exit(1);
 }
 
+$http = new HttpCapture($setting('IXC_HOST'), $setting('IXC_TOKEN'), $setting('IXC_INSECURE') === '1');
 $recorder = new FixtureRecorder(
-    new HttpCapture($setting('IXC_HOST'), $setting('IXC_TOKEN'), $setting('IXC_INSECURE') === '1'),
+    $http,
     new Anonymizer(),
     $root . '/tests/Fixtures',
     STDOUT
@@ -93,6 +95,121 @@ if ($wants('resources')) {
         'status' => 'F',
         'id_tecnico' => '',
     ]));
+}
+// Resources with real records, created through the API (see TestData). Forwarding an order needs the
+// API user linked to a collaborator who belongs to the order's sector; the scenario records the error otherwise.
+if ($wants('resources')) {
+    $data = new TestData($http);
+    /**
+     * @param array<string, string> $parameters
+     * @return array{status: int, headers: array<string, string>, body: string}
+     */
+    $named = static function (
+        string $fixture,
+        string $resource,
+        string $style,
+        array $parameters
+    ) use ($recorder): array {
+        $headers = $style === 'listar'
+            ? ['ixcsoft' => 'listar', 'Content-Type' => 'application/json']
+            : ['Content-Type' => 'application/json'];
+        $body = (string) json_encode($parameters);
+
+        return $recorder->record($fixture, 'POST', 'webservice/v1/' . $resource, $headers, $body);
+    };
+    $now = date('d/m/Y H:i:s');
+    $client = $data->client();
+    $contract = $data->contract($client);
+    $named('resource_activate_contract', 'cliente_contrato_ativar_cliente', 'listar', [
+        'qtype' => 'cliente_contrato_ativar_cliente.id',
+        'id_contrato' => $contract,
+    ]);
+    $named('resource_contract_status_active', 'cliente_contrato_15464', 'listar', ['id_contrato' => $contract]);
+    $named('resource_trust_unlock_active', 'desbloqueio_confianca', 'listar', ['id' => $contract]);
+    $named('resource_temporary_release', 'cliente_contrato_btn_lib_temp_24722', 'listar', ['id' => $contract]);
+    $named('resource_speed_release', 'liberacao_reducao_contrato_29157', 'listar', ['get_id' => $contract]);
+
+    $invoice = $data->invoice($client, $contract);
+    $boleto = ['boletos' => $invoice, 'juro' => 'N', 'multa' => 'N', 'atualiza_boleto' => 'N'];
+    $named('resource_boleto_data', 'get_boleto', 'listar', $boleto + ['tipo_boleto' => 'dados']);
+    $named('resource_boleto_base64', 'get_boleto', 'listar', $boleto + ['tipo_boleto' => 'arquivo', 'base64' => 'S']);
+    $named('resource_boleto_binary', 'get_boleto', 'listar', $boleto + ['tipo_boleto' => 'arquivo', 'base64' => 'N']);
+    $named('resource_boleto_mail', 'get_boleto', 'listar', $boleto + ['tipo_boleto' => 'mail']);
+    $named('resource_boleto_sms', 'get_boleto', 'listar', $boleto + ['tipo_boleto' => 'sms']);
+    $named('resource_print_invoice_missing', 'imprimir_nota', 'listar', ['id' => '999999999', 'base64' => 'S']);
+    $named('resource_viability', 'viabilidade_tecnica', 'listar', ['latitude' => '-27.100', 'longitude' => '-52.615']);
+
+    $login = $data->login($client, $contract);
+    $named('resource_disconnect_login', 'desconectar_clientes', 'listar', ['id' => $login]);
+    $named('resource_clear_mac', 'radusuarios_25452', 'post', ['get_id' => $login]);
+
+    $order = $data->order($client, $contract, $login);
+    $named('resource_analyze_order', 'su_oss_chamado_analisar', 'post', [
+        'id_setor' => '1',
+        'id_chamado' => $order,
+        'status' => 'AN',
+        'id_tecnico' => '1',
+        'mensagem' => 'analisando',
+        'data_inicio' => $now,
+        'data_final' => $now,
+    ]);
+    $named('resource_forward_order', 'su_oss_chamado_alterar_setor', 'post', [
+        'id_chamado' => $order,
+        'id_setor' => '2',
+        'id_tecnico' => '1',
+        'id_assunto' => '1',
+        'mensagem' => 'encaminhando',
+        'status' => 'EN',
+    ]);
+    $named('resource_comodato_incomplete', 'su_oss_mov_comodato_wiz_novo', 'post', [
+        'id_oss_chamado' => $order,
+        'id_contrato' => $contract,
+        'id_produto' => '1',
+        'descricao' => 'teste',
+        'data' => date('d/m/Y'),
+        'qtde_saida' => '1',
+    ]);
+    $named('resource_close_order', 'su_oss_chamado_fechar', 'post', [
+        'id_chamado' => $order,
+        'data_inicio' => $now,
+        'data_final' => $now,
+        'mensagem' => 'finalizado',
+        'gera_comissao' => 'N',
+        'id_su_diagnostico' => '',
+        'finaliza_processo' => 'S',
+        'status' => 'F',
+        'id_tecnico' => '1',
+    ]);
+
+    $protocol = $http->send('POST', 'webservice/v1/gerar_protocolo_atendimento', $listing, '{}')['body'];
+    $protocol = json_decode($protocol);
+    $ticket = $data->ticket($client, $contract, $login, is_string($protocol) ? $protocol : '');
+    $named('resource_transfer_ticket', 'su_transf_atendimento_26466', 'post', [
+        'id_atendimento' => $ticket,
+        'data_transferencia' => $now,
+        'id_departamento_origem' => '1',
+        'id_departamento_destino' => '2',
+        'id_responsavel_tecnico' => '2',
+    ]);
+    $named('resource_receive_invoice', 'fn_areceber_recebimentos_baixas_novo', 'post', [
+        'filial_id' => '1',
+        'id_receber' => $invoice,
+        'conta_' => '1',
+        'id_conta' => '1',
+        'tipo_recebimento' => 'D',
+        'data' => date('d/m/Y'),
+        'valor_parcela' => 'R$99,90',
+        'credito' => '99,90',
+        'debito' => '99,90',
+        'valor_total_recebido' => 'R$99,90',
+        'historico' => 'teste',
+        'previsao' => 'N',
+        'tipo_lanc' => 'R',
+    ]);
+
+    // What the API lets go; the finalized order, received invoice and contract stay.
+    $data->delete('su_ticket', $ticket);
+    $data->delete('radusuarios', $login);
 }
 if (!$wants('tables')) {
     exit(0);

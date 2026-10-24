@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"id\":\"2\"}",
+        "method": "POST",
+        "path": "webservice/v1/desconectar_clientes",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"id\":\"2\",\"action\":\"anon-2a28247c\",\"msg\":[{\"message\":\"Login ID: 2 falhou! -> Comando de desconex\\u00e3o falhou                     \\n\",\"type\":\"error\",\"titulo\":\"anon-94d2a295\"}]}"
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"qtype\":\"cliente_contrato_ativar_cliente.id\",\"id_contrato\":\"2\"}",
+        "method": "POST",
+        "path": "webservice/v1/cliente_contrato_ativar_cliente",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"success\",\"message\":\"Contrato ativado com sucesso!\",\"qtype\":\"anon-41f11315\",\"id_contrato\":\"2\",\"action\":\"anon-ce351dce\"}"
+    }
+}

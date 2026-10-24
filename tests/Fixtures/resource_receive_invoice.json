@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"filial_id\":\"1\",\"id_receber\":\"2\",\"conta_\":\"1\",\"id_conta\":\"1\",\"tipo_recebimento\":\"D\",\"data\":\"anon-77e735c8\",\"valor_parcela\":\"anon-254e0f18\",\"credito\":\"anon-bf49cd8d\",\"debito\":\"anon-bf49cd8d\",\"valor_total_recebido\":\"anon-254e0f18\",\"historico\":\"anon-46070d4b\",\"previsao\":\"N\",\"tipo_lanc\":\"R\"}",
+        "method": "POST",
+        "path": "webservice/v1/fn_areceber_recebimentos_baixas_novo",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"message\":\"Registro inserido com sucesso!<br \\/>\",\"type\":\"success\"}"
+    }
+}

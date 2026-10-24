@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"id_setor\":\"1\",\"id_chamado\":\"2\",\"status\":\"anon-5ac4d5d4\",\"id_tecnico\":\"1\",\"mensagem\":\"anon-987c63f6\",\"data_inicio\":\"anon-40bb9d80\",\"data_final\":\"anon-40bb9d80\"}",
+        "method": "POST",
+        "path": "webservice/v1/su_oss_chamado_analisar",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"success\",\"message\":\"Registro inserido com sucesso!\",\"id\":\"19\"}"
+    }
+}

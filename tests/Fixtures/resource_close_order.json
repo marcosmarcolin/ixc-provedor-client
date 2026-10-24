@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"id_chamado\":\"2\",\"data_inicio\":\"anon-40bb9d80\",\"data_final\":\"anon-40bb9d80\",\"mensagem\":\"anon-140c43ae\",\"gera_comissao\":\"N\",\"id_su_diagnostico\":\"\",\"finaliza_processo\":\"S\",\"status\":\"F\",\"id_tecnico\":\"1\"}",
+        "method": "POST",
+        "path": "webservice/v1/su_oss_chamado_fechar",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"success\",\"message\":\"Registro inserido com sucesso!\",\"id\":\"19\"}"
+    }
+}
