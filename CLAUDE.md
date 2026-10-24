@@ -30,7 +30,7 @@ A change is done only when all of these hold:
 1. **It is tested.** New behavior comes with tests, and a bug fix comes with a test that fails without the fix. HTTP is faked with `php-http/mock-client`; tests never hit the network.
 2. **No secrets:** gitleaks passes, locally (hooks) and in CI.
 3. **The quality tools pass:** PHPUnit, phpcs (PSR-12) and PHPStan at level `max`, locally in Docker and in CI, on every PHP version from 7.4 to the latest.
-4. **The docs are current:** README, CLAUDE.md and examples match the behavior.
+4. **The docs are current:** both READMEs, CLAUDE.md and examples match the behavior.
 
 ## Code rules
 
@@ -48,7 +48,7 @@ A change is done only when all of these hold:
 - Short comments, one line, only to explain why.
 - No `echo`/`print`. Errors become exceptions.
 - No production dependencies besides the PSR interfaces and `php-http/discovery`.
-- Code, comments, CLAUDE.md, commits and PRs in English. The README is in Portuguese, the language of the package's users.
+- Code, comments, CLAUDE.md, commits and PRs in English. `README.md` is in Portuguese, the language of the package's users, and `README.en.md` is its English translation; both start with a language switcher and change together.
 
 ## Verification
 
@@ -111,5 +111,5 @@ What the wiki and the official client show. Items marked *to confirm* need a cap
 4. [ ] `Query`, `Page` and `Table` (list, find, create, update, delete, each).
 5. [ ] `Resource` and `Response`.
 6. [ ] `Client::create()` with discovery.
-7. [ ] Complete README and examples.
+7. [ ] Complete both READMEs (pt-BR and en) and examples.
 8. [ ] First release (`v0.1.0`).

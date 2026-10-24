@@ -1,5 +1,7 @@
 # ixc-provedor-client
 
+**Português** | [English](README.en.md)
+
 Cliente PHP para a API (webservice) do **IXC Provedor**, da IXCSoft.
 
 > **Em desenvolvimento.** A API pública ainda não está pronta; veja o roadmap no [CLAUDE.md](CLAUDE.md).
