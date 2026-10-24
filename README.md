@@ -50,6 +50,8 @@ git config core.hooksPath .githooks
 
 O CI roda o mesmo scan em todo o histórico.
 
+As fixtures de `tests/Fixtures/` são respostas reais anonimizadas, capturadas com `docker compose run --rm php composer capture` contra a instância configurada no `.env` (`IXC_HOST`, `IXC_TOKEN`, `IXC_INSECURE`). A captura cria, altera e apaga um cliente: use só uma instância descartável.
+
 ## Licença
 
 MIT

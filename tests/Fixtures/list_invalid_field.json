@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"qtype\":\"anon-44c52124\",\"query\":\"1\",\"oper\":\"=\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"anon-44c52124\",\"sortorder\":\"anon-d68d3ff6\"}",
+        "method": "POST",
+        "path": "webservice/v1/cliente",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "<div style=\"margin:40px; padding:30px; background:#FF0000; border:1px solid #000; color:#FFF; font-weight:bold; font-family:Arial, Helvetica, sans-serif; font-size:12px; text-align:center\">Ocorreu um erro ao processar. Contate o suporte IXC Soft.</div>"
+    }
+}

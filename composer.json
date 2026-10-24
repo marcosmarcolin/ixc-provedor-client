@@ -3,7 +3,14 @@
   "description": "PHP client for the IXC Provedor (IXCSoft) webservice API",
   "type": "library",
   "license": "MIT",
-  "keywords": ["ixc", "ixcsoft", "ixc-provedor", "api", "webservice", "isp"],
+  "keywords": [
+    "ixc",
+    "ixcsoft",
+    "ixc-provedor",
+    "api",
+    "webservice",
+    "isp"
+  ],
   "authors": [
     {
       "name": "Marcos Marcolin"
@@ -30,14 +37,19 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Marcolin\\IxcProvedor\\Tests\\": "tests/"
+      "Marcolin\\IxcProvedor\\Tests\\": "tests/",
+      "Marcolin\\IxcProvedor\\Tools\\": "tools/"
     }
   },
   "scripts": {
     "test": "phpunit",
     "phpcs": "phpcs",
     "phpstan": "phpstan analyse --memory-limit=512M",
-    "lint": ["@phpcs", "@phpstan"]
+    "lint": [
+      "@phpcs",
+      "@phpstan"
+    ],
+    "capture": "php tools/capture-fixtures.php"
   },
   "config": {
     "sort-packages": true,

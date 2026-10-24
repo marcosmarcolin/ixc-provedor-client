@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"qtype\":\"anon-3604cb21\",\"query\":\"0\",\"oper\":\">\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"anon-3604cb21\",\"sortorder\":\"anon-d68d3ff6\"}",
+        "method": "POST",
+        "path": "webservice/v2/cliente",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/html; charset=ISO-8859-1"
+        },
+        "body": "{\"type\":\"error\",\"message\":\"Vers\\u00e3o v2 do webservice n\\u00e3o est\\u00e1 dispon\\u00edvel!\"}"
+    }
+}
