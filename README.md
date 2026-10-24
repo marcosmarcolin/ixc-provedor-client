@@ -6,7 +6,7 @@
 
 Cliente PHP para a API (webservice) do **IXC Provedor**, da IXCSoft.
 
-> **Em desenvolvimento**, ainda sem versão publicada; veja o roadmap no [CLAUDE.md](CLAUDE.md).
+> **Em desenvolvimento**, ainda sem versão publicada.
 
 ## Requisitos
 

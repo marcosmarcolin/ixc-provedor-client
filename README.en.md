@@ -6,7 +6,7 @@
 
 PHP client for the **IXC Provedor** API (webservice), by IXCSoft.
 
-> **Under development**, with no published version yet; see the roadmap in [CLAUDE.md](CLAUDE.md).
+> **Under development**, with no published version yet.
 
 ## Requirements
 
