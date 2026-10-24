@@ -3,7 +3,7 @@
 /**
  * Captures real responses from the IXC Provedor instance configured in .env as fixtures.
  *
- * Usage (Docker only): docker compose run --rm php composer capture [-- tables|resources]
+ * Usage (Docker only): docker compose run --rm php composer capture [-- routes|resources]
  * Raw responses go to tests/Fixtures/raw/ (gitignored); anonymized ones to tests/Fixtures/.
  * The write scenarios create, change and delete a client: point it at a disposable instance only.
  */
@@ -211,7 +211,7 @@ if ($wants('resources')) {
     $data->delete('su_ticket', $ticket);
     $data->delete('radusuarios', $login);
 }
-if (!$wants('tables')) {
+if (!$wants('routes')) {
     exit(0);
 }
 

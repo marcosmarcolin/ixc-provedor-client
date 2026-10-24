@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use Marcolin\IxcProvedor\Credentials;
 use Marcolin\IxcProvedor\Exception\ApiErrorException;
 use Marcolin\IxcProvedor\Resource;
+use Marcolin\IxcProvedor\Resources;
 use Marcolin\IxcProvedor\Response;
 use Marcolin\IxcProvedor\Tests\Support\Fixture;
 use Marcolin\IxcProvedor\Transport;
@@ -55,7 +56,7 @@ final class ResourceTest extends TestCase
     {
         $this->http->addResponse(Fixture::response('resource_protocol_listar'));
 
-        $protocol = $this->resource('gerar_protocolo_atendimento')->list()->json();
+        $protocol = $this->resource(Resources::GERAR_PROTOCOLO_ATENDIMENTO)->list()->json();
 
         self::assertSame('{}', (string) $this->lastRequest()->getBody());
         self::assertIsString($protocol);

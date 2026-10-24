@@ -12,11 +12,13 @@ use Marcolin\IxcProvedor\Exception\UnexpectedResponseException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * The routes of one table: list, find, create (with files), update, replace, patch and delete.
+ * One route of the API: a form of IXC Provedor (cliente, cliente_contrato, fn_areceber...) and its
+ * operations: list, find, create (with files), update, replace, patch and delete. Actions such as
+ * activating a contract are resources instead (see Resource).
  *
  * Rows are associative arrays with the API's own field names; every value the API returns is a string.
  */
-final class Table
+final class Route
 {
     private Transport $transport;
 
@@ -27,7 +29,7 @@ final class Table
     public function __construct(Transport $transport, string $name, ?RowEncoder $encoder = null)
     {
         if (preg_match('/^[A-Za-z0-9_]+$/', $name) !== 1) {
-            throw new InvalidArgumentException(sprintf('Invalid table name "%s".', $name));
+            throw new InvalidArgumentException(sprintf('Invalid route name "%s".', $name));
         }
         $this->transport = $transport;
         $this->name = $name;

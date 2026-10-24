@@ -12,7 +12,7 @@ use Marcolin\IxcProvedor\Exception\ApiErrorException;
 use Marcolin\IxcProvedor\Exception\NotFoundException;
 use Marcolin\IxcProvedor\Exception\UnexpectedResponseException;
 use Marcolin\IxcProvedor\Query;
-use Marcolin\IxcProvedor\Table;
+use Marcolin\IxcProvedor\Route;
 use Marcolin\IxcProvedor\Tests\Support\Fixture;
 use Marcolin\IxcProvedor\Transport;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -20,23 +20,23 @@ use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 
-final class TableTest extends TestCase
+final class RouteTest extends TestCase
 {
     private MockClient $http;
 
-    private Table $table;
+    private Route $route;
 
     protected function setUp(): void
     {
         $this->http = new MockClient();
-        $this->table = new Table($this->transport(), 'cliente');
+        $this->route = new Route($this->transport(), 'cliente');
     }
 
     public function testListsWithTheListarHeaderAndTheQueryAsJson(): void
     {
         $this->http->addResponse(Fixture::response('list_page'));
 
-        $page = $this->table->list(Query::where('ativo', '=', 'S')->withPerPage(2));
+        $page = $this->route->list(Query::where('ativo', '=', 'S')->withPerPage(2));
 
         $request = $this->request(0);
         self::assertSame('POST', $request->getMethod());
@@ -54,7 +54,7 @@ final class TableTest extends TestCase
     {
         $this->http->addResponse(Fixture::response('list_empty'));
 
-        self::assertTrue($this->table->list()->isEmpty());
+        self::assertTrue($this->route->list()->isEmpty());
         self::assertSame(Query::all()->toParameters('cliente'), $this->body($this->request(0)));
     }
 
@@ -64,7 +64,7 @@ final class TableTest extends TestCase
         $this->http->addResponse($this->listing(3, ['3']));
 
         $ids = [];
-        foreach ($this->table->each(Query::all()->withPerPage(2)) as $row) {
+        foreach ($this->route->each(Query::all()->withPerPage(2)) as $row) {
             $ids[] = $row['id'];
         }
 
@@ -77,7 +77,7 @@ final class TableTest extends TestCase
     {
         $this->http->addResponse($this->listing(2, ['1', '2']));
 
-        self::assertCount(2, iterator_to_array($this->table->each(Query::all()->withPerPage(2)), false));
+        self::assertCount(2, iterator_to_array($this->route->each(Query::all()->withPerPage(2)), false));
         self::assertCount(1, $this->http->getRequests());
     }
 
@@ -85,14 +85,14 @@ final class TableTest extends TestCase
     {
         $this->http->addResponse(Fixture::response('list_empty'));
 
-        self::assertSame([], iterator_to_array($this->table->each(), false));
+        self::assertSame([], iterator_to_array($this->route->each(), false));
     }
 
     public function testFindsOneRecordById(): void
     {
         $this->http->addResponse(Fixture::response('find'));
 
-        $row = $this->table->find('2');
+        $row = $this->route->find('2');
 
         self::assertNotNull($row);
         self::assertArrayHasKey('razao', $row);
@@ -104,14 +104,14 @@ final class TableTest extends TestCase
     {
         $this->http->addResponse(Fixture::response('list_empty'));
 
-        self::assertNull($this->table->find('999'));
+        self::assertNull($this->route->find('999'));
     }
 
     public function testCreateSendsTheRowWithWriteDatesAndReturnsTheId(): void
     {
         $this->http->addResponse(Fixture::response('insert'));
 
-        $id = $this->table->create(['razao' => 'Teste', 'data_nascimento' => '1990-05-17']);
+        $id = $this->route->create(['razao' => 'Teste', 'data_nascimento' => '1990-05-17']);
 
         $request = $this->request(0);
         self::assertSame('POST', $request->getMethod());
@@ -124,7 +124,7 @@ final class TableTest extends TestCase
     {
         $this->http->addResponse(Fixture::response('insert_with_file'));
 
-        $id = (new Table($this->transport(), 'cliente_arquivos'))->create(
+        $id = (new Route($this->transport(), 'cliente_arquivos'))->create(
             ['id_cliente' => '10', 'descricao' => 'Contrato', 'data_envio' => '2026-10-24'],
             ['local_arquivo' => Attachment::fromContents('contrato.txt', 'conteudo', 'text/plain')]
         );
@@ -155,7 +155,7 @@ final class TableTest extends TestCase
         $this->expectException(ApiErrorException::class);
         $this->expectExceptionMessage('CPF/CNPJ obrigatório!');
 
-        $this->table->create(['ativo' => 'S']);
+        $this->route->create(['ativo' => 'S']);
     }
 
     public function testCreateRejectsASuccessWithoutAnId(): void
@@ -164,7 +164,7 @@ final class TableTest extends TestCase
 
         $this->expectException(UnexpectedResponseException::class);
 
-        $this->table->create(['ativo' => 'S']);
+        $this->route->create(['ativo' => 'S']);
     }
 
     public function testUpdateReadsTheRecordAndWritesItBackWholeWithTheChanges(): void
@@ -172,7 +172,7 @@ final class TableTest extends TestCase
         $this->http->addResponse(Fixture::response('find'));
         $this->http->addResponse(Fixture::response('update'));
 
-        $this->table->update('2', ['obs' => 'alterado']);
+        $this->route->update('2', ['obs' => 'alterado']);
 
         $put = $this->request(1);
         self::assertSame('PUT', $put->getMethod());
@@ -189,7 +189,7 @@ final class TableTest extends TestCase
         $this->http->addResponse(Fixture::response('list_empty'));
 
         try {
-            $this->table->update('999999999', ['obs' => 'x']);
+            $this->route->update('999999999', ['obs' => 'x']);
             self::fail('Expected a NotFoundException.');
         } catch (NotFoundException $exception) {
             self::assertCount(1, $this->http->getRequests());
@@ -200,7 +200,7 @@ final class TableTest extends TestCase
     {
         $this->http->addResponse(Fixture::response('update_not_found'));
 
-        $this->table->replace('999999999', ['razao' => 'Teste']);
+        $this->route->replace('999999999', ['razao' => 'Teste']);
 
         self::assertSame(['razao' => 'Teste'], $this->body($this->request(0)));
     }
@@ -209,7 +209,7 @@ final class TableTest extends TestCase
     {
         $this->http->addResponse(Fixture::response('patch'));
 
-        $this->table->patch('2', ['razao' => 'Teste', 'data_nascimento' => '1990-05-17']);
+        $this->route->patch('2', ['razao' => 'Teste', 'data_nascimento' => '1990-05-17']);
 
         $request = $this->request(0);
         self::assertSame('PATCH', $request->getMethod());
@@ -224,7 +224,7 @@ final class TableTest extends TestCase
         $this->expectException(ApiErrorException::class);
         $this->expectExceptionMessage('CPF/CNPJ obrigatório!');
 
-        $this->table->patch('2', ['obs' => 'somente obs']);
+        $this->route->patch('2', ['obs' => 'somente obs']);
     }
 
     public function testDeleteSendsTheIdInThePath(): void
@@ -232,8 +232,8 @@ final class TableTest extends TestCase
         $this->http->addResponse(Fixture::response('delete'));
         $this->http->addResponse(Fixture::response('delete_not_found'));
 
-        $this->table->delete('2');
-        $this->table->delete('2');
+        $this->route->delete('2');
+        $this->route->delete('2');
 
         self::assertSame('DELETE', $this->request(0)->getMethod());
         self::assertSame('https://ixc.example.com/webservice/v1/cliente/2', (string) $this->request(1)->getUri());
@@ -245,7 +245,7 @@ final class TableTest extends TestCase
 
         $this->expectException(UnexpectedResponseException::class);
 
-        $this->table->delete('2');
+        $this->route->delete('2');
     }
 
     public function testListAnsweredWithHtmlIsUnexpected(): void
@@ -254,7 +254,7 @@ final class TableTest extends TestCase
 
         $this->expectException(UnexpectedResponseException::class);
 
-        $this->table->list();
+        $this->route->list();
     }
 
     /**
@@ -276,14 +276,14 @@ final class TableTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $this->table->delete($id);
+        $this->route->delete($id);
     }
 
-    public function testRejectsInvalidTableNames(): void
+    public function testRejectsInvalidRouteNames(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new Table($this->transport(), 'cliente/1');
+        new Route($this->transport(), 'cliente/1');
     }
 
     private function transport(): Transport

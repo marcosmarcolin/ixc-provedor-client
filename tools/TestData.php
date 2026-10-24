@@ -171,40 +171,40 @@ final class TestData
     /**
      * Deletes what the API lets go; the rest stays on the instance.
      */
-    public function delete(string $table, string $id): void
+    public function delete(string $route, string $id): void
     {
-        $this->http->send('DELETE', 'webservice/v1/' . $table . '/' . $id);
+        $this->http->send('DELETE', 'webservice/v1/' . $route . '/' . $id);
     }
 
     /**
      * @param array<string, string> $row
      */
-    private function insert(string $table, array $row): string
+    private function insert(string $route, array $row): string
     {
-        $answer = $this->http->send('POST', 'webservice/v1/' . $table, $this->json, (string) json_encode($row));
+        $answer = $this->http->send('POST', 'webservice/v1/' . $route, $this->json, (string) json_encode($row));
         $id = Requests::firstId($answer['body']);
         if ($id === '') {
-            throw new RuntimeException(sprintf('Creating the test %s failed: %s', $table, $answer['body']));
+            throw new RuntimeException(sprintf('Creating the test %s failed: %s', $route, $answer['body']));
         }
 
         return $id;
     }
 
-    private function firstId(string $table): string
+    private function firstId(string $route): string
     {
-        $id = $this->list($table, $table . '.id', '>', '0');
+        $id = $this->list($route, $route . '.id', '>', '0');
         if ($id === '') {
-            throw new RuntimeException(sprintf('The instance has no %s, which the test data needs.', $table));
+            throw new RuntimeException(sprintf('The instance has no %s, which the test data needs.', $route));
         }
 
         return $id;
     }
 
-    private function list(string $table, string $field, string $operator, string $value): string
+    private function list(string $route, string $field, string $operator, string $value): string
     {
         $answer = $this->http->send(
             'POST',
-            'webservice/v1/' . $table,
+            'webservice/v1/' . $route,
             $this->listing,
             Requests::query($field, $operator, $value)
         );
@@ -215,11 +215,11 @@ final class TestData
     /**
      * @return array<string, mixed>
      */
-    private function firstRow(string $table, string $field, string $operator, string $value): array
+    private function firstRow(string $route, string $field, string $operator, string $value): array
     {
         $answer = $this->http->send(
             'POST',
-            'webservice/v1/' . $table,
+            'webservice/v1/' . $route,
             $this->listing,
             Requests::query($field, $operator, $value)
         );

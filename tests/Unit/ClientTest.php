@@ -33,12 +33,12 @@ final class ClientTest extends TestCase
         ClassDiscovery::clearCache();
     }
 
-    public function testTablesGoThroughTheGivenHttpClient(): void
+    public function testRoutesGoThroughTheGivenHttpClient(): void
     {
         $http = new MockClient();
         $http->addResponse(Fixture::response('list_page'));
 
-        $page = Client::create('https://ixc.example.com', '6:not-a-real-secret', $http)->table('cliente')->list();
+        $page = Client::create('https://ixc.example.com', '6:not-a-real-secret', $http)->route('cliente')->list();
 
         $request = $http->getLastRequest();
         self::assertInstanceOf(RequestInterface::class, $request);

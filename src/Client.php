@@ -9,7 +9,7 @@ use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientInterface;
 
 /**
- * Entry point: one IXC Provedor instance, its tables and its resources.
+ * Entry point: one IXC Provedor instance, its routes (forms) and its resources (actions).
  */
 final class Client
 {
@@ -44,9 +44,9 @@ final class Client
         ));
     }
 
-    public function table(string $name): Table
+    public function route(string $name): Route
     {
-        return new Table($this->transport, $name);
+        return new Route($this->transport, $name);
     }
 
     public function resource(string $name): Resource
