@@ -14,7 +14,10 @@
   "homepage": "https://github.com/marcosmarcolin/ixc-provedor-client",
   "authors": [
     {
-      "name": "Marcos Marcolin"
+      "name": "Marcos Marcolin",
+      "email": "marcolindev@gmail.com",
+      "homepage": "https://www.marcosmarcolin.com.br",
+      "role": "Developer"
     }
   ],
   "support": {
