@@ -167,19 +167,14 @@ final class TransportTest extends TestCase
 
     public function testTurnsAnHttpErrorStatusIntoAnExceptionWithTheApiMessage(): void
     {
-        // Shape taken from the server's blocked-method answer (rotas.php); not captured yet.
-        $this->http->addResponse(new Response(
-            405,
-            ['Allow' => 'POST, GET', 'Content-Type' => 'text/html; charset=ISO-8859-1'],
-            '{"type":"error","message":"Recurso chave_integrador não permite deletar registro(s)!"}'
-        ));
+        $this->http->addResponse(new Response(500, [], '{"type":"error","message":"Falha ao processar"}'));
 
         try {
-            $this->transport()->send('DELETE', 'chave_integrador/1');
+            $this->transport()->send('POST', 'cliente');
             self::fail('Expected an ApiErrorException.');
         } catch (ApiErrorException $exception) {
-            self::assertSame(405, $exception->statusCode());
-            self::assertSame('Recurso chave_integrador não permite deletar registro(s)!', $exception->getMessage());
+            self::assertSame(500, $exception->statusCode());
+            self::assertSame('Falha ao processar', $exception->getMessage());
         }
     }
 
@@ -256,6 +251,7 @@ final class TransportTest extends TestCase
         yield 'parent directory' => ['../cliente'];
         yield 'query string' => ['cliente?x=1'];
         yield 'trailing slash' => ['cliente/'];
+        yield 'list of ids' => ['cliente/1,2'];
     }
 
     /**
@@ -268,16 +264,14 @@ final class TransportTest extends TestCase
         $this->transport()->send('POST', $path);
     }
 
-    public function testAcceptsResourceNamesAndIdLists(): void
+    public function testAcceptsNumberedResourceNames(): void
     {
         $this->http->addResponse(Fixture::response('delete'));
-        $this->http->addResponse(Fixture::response('delete'));
 
-        $this->transport()->send('POST', 'botaoAjax_28509');
-        $this->transport()->send('DELETE', 'cliente/1,2,3');
+        $this->transport()->send('POST', 'radusuarios_25452');
 
         $uri = (string) $this->lastRequest()->getUri();
-        self::assertSame('https://ixc.example.com/webservice/v1/cliente/1,2,3', $uri);
+        self::assertSame('https://ixc.example.com/webservice/v1/radusuarios_25452', $uri);
     }
 
     private function transport(string $host = 'https://ixc.example.com', ?ApiVersion $version = null): Transport

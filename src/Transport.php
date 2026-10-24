@@ -60,7 +60,7 @@ final class Transport
      */
     public function send(string $method, string $path, array $headers = [], ?string $body = null): ResponseInterface
     {
-        if (preg_match('/^[A-Za-z0-9_]+(\/[A-Za-z0-9_,]+)*$/', $path) !== 1) {
+        if (preg_match('/^[A-Za-z0-9_]+(\/[A-Za-z0-9_]+)*$/', $path) !== 1) {
             throw new InvalidArgumentException(sprintf('Invalid route "%s".', $path));
         }
 
@@ -95,9 +95,7 @@ final class Transport
     {
         $status = $response->getStatusCode();
         if ($status === 401) {
-            throw new AuthenticationException(
-                'HTTP 401: the token was rejected, or the route only accepts requests from the server itself.'
-            );
+            throw new AuthenticationException('HTTP 401: the token was rejected.');
         }
 
         $body = (string) $response->getBody();
