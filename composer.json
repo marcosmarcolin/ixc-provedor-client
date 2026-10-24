@@ -6,10 +6,14 @@
   "keywords": [
     "ixc",
     "ixcsoft",
+    "ixc-soft",
     "ixc-provedor",
     "api",
+    "api-client",
     "webservice",
-    "isp"
+    "psr-18",
+    "isp",
+    "provedor"
   ],
   "homepage": "https://github.com/marcosmarcolin/ixc-provedor-client",
   "authors": [
