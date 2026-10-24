@@ -55,6 +55,14 @@ final class AnonymizerTest extends TestCase
         self::assertNotSame($anonymizer->anonymize('987'), $anonymizer->anonymize('988'));
     }
 
+    public function testKeepsInvalidDatesBecauseTheyIdentifyNobody(): void
+    {
+        $anonymizer = new Anonymizer();
+
+        self::assertSame('0001-01-00', $anonymizer->anonymize('0001-01-00'));
+        self::assertSame('2000-01-01', $anonymizer->anonymize('1990-01-01'));
+    }
+
     public function testKeepsTheApiStatusAndMessage(): void
     {
         $body = ['type' => 'error', 'message' => 'Recurso tabela_x não está disponível!'];
