@@ -39,7 +39,7 @@ Toda exceção de uma requisição implementa `Marcolin\IxcProvedor\Exception\Ix
 | Exceção | Quando |
 |---|---|
 | `ApiErrorException` | a API respondeu `{"type":"error"}`, o que costuma vir com HTTP 200, ou um status HTTP de erro |
-| `AuthenticationException` | HTTP 401: token recusado, ou rota liberada só para o próprio servidor |
+| `AuthenticationException` | HTTP 401: token recusado (segredo errado ou usuário inexistente) |
 | `TransportException` | a requisição não teve resposta (DNS, conexão, TLS, timeout) |
 
 A mensagem de um `ApiErrorException` é o texto da própria API, em português, e pode ser mostrada ao usuário:

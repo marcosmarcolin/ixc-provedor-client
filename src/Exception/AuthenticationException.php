@@ -7,7 +7,7 @@ namespace Marcolin\IxcProvedor\Exception;
 use RuntimeException;
 
 /**
- * HTTP 401: the token was rejected, or the route only accepts requests from the server itself.
+ * HTTP 401: the token was rejected (wrong secret or unknown user).
  */
 final class AuthenticationException extends RuntimeException implements IxcException
 {
