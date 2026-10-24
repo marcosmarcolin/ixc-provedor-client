@@ -21,19 +21,23 @@ final class Client
     }
 
     /**
-     * Builds a client on the built-in HTTP client (ext-curl), which accepts self-signed certificates
-     * unless $tls says otherwise. The PSR-17 factories are discovered.
+     * Builds a client on the built-in HTTP client (ext-curl), as the official client is built:
+     * the certificate is verified unless $selfSigned is true. The PSR-17 factories are discovered.
      *
      * @param string $host the instance's address, such as "https://ixc.example.com", without "/webservice/v1"
      * @param string $token the webservice token, "<user id>:<secret>"
-     * @param Tls|null $tls Tls::acceptSelfSigned() by default; Tls::verifyWith($pem) pins a certificate
+     * @param bool $selfSigned true accepts a self-signed certificate, as the official client's $selfSigned
      */
-    public static function create(string $host, string $token, ?Tls $tls = null, ?ApiVersion $version = null): self
-    {
+    public static function create(
+        string $host,
+        string $token,
+        bool $selfSigned = false,
+        ?ApiVersion $version = null
+    ): self {
         $http = new CurlHttpClient(
             Psr17FactoryDiscovery::findResponseFactory(),
             Psr17FactoryDiscovery::findStreamFactory(),
-            $tls
+            $selfSigned
         );
 
         return self::withHttpClient($host, $token, $http, $version);

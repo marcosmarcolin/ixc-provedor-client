@@ -8,7 +8,7 @@ First release: a client for the public IXC Provedor API (`/webservice/v1`), cove
 
 ### Added
 
-- `Client::create($host, $token, ?Tls $tls)` on a built-in HTTP client (ext-curl) that accepts self-signed certificates by default, as the official client's `$selfSigned`; `Tls::verifyWith($pem)` pins the instance's certificate and `Tls::verify()` uses the system's authorities.
+- `Client::create($host, $token, $selfSigned = false)` on a built-in HTTP client (ext-curl): as in the official client, the certificate is verified unless `$selfSigned` is `true`.
 - `Client::withHttpClient($host, $token, $httpClient)` for any PSR-18 client, such as Guzzle or Symfony HttpClient.
 - Routes (the system's forms) through `Client::route($name)`:
   - `list()` with `Query` (condition, `grid_param` filters, paging and sorting) and `each()` over every page;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Marcolin\IxcProvedor\Http;
 
-use Marcolin\IxcProvedor\Tls;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -13,8 +12,8 @@ use Psr\Http\Message\StreamFactoryInterface;
 use RuntimeException;
 
 /**
- * The built-in PSR-18 client, on ext-curl: PSR-18 has no TLS settings, and accepting a self-signed
- * certificate by default needs them.
+ * The built-in PSR-18 client, on ext-curl: PSR-18 has no TLS settings, and the $selfSigned option of
+ * the official client needs them.
  */
 final class CurlHttpClient implements ClientInterface
 {
@@ -22,26 +21,27 @@ final class CurlHttpClient implements ClientInterface
 
     private StreamFactoryInterface $streamFactory;
 
-    private Tls $tls;
+    private bool $selfSigned;
 
     private int $timeout;
 
     private int $connectTimeout;
 
     /**
+     * @param bool $selfSigned true accepts a self-signed certificate, skipping verification
      * @param int $timeout seconds for the whole request
      * @param int $connectTimeout seconds to connect
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         StreamFactoryInterface $streamFactory,
-        ?Tls $tls = null,
+        bool $selfSigned = false,
         int $timeout = 60,
         int $connectTimeout = 10
     ) {
         $this->responseFactory = $responseFactory;
         $this->streamFactory = $streamFactory;
-        $this->tls = $tls ?? Tls::acceptSelfSigned();
+        $this->selfSigned = $selfSigned;
         $this->timeout = $timeout;
         $this->connectTimeout = $connectTimeout;
     }
@@ -82,7 +82,7 @@ final class CurlHttpClient implements ClientInterface
     }
 
     /**
-     * The curl options for a request, TLS included.
+     * The curl options for a request, certificate check included.
      *
      * @return array<int, mixed>
      */
@@ -103,12 +103,9 @@ final class CurlHttpClient implements ClientInterface
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_TIMEOUT => $this->timeout,
             CURLOPT_CONNECTTIMEOUT => $this->connectTimeout,
-            CURLOPT_SSL_VERIFYPEER => $this->tls->verifies(),
-            CURLOPT_SSL_VERIFYHOST => $this->tls->verifies() ? 2 : 0,
+            CURLOPT_SSL_VERIFYPEER => !$this->selfSigned,
+            CURLOPT_SSL_VERIFYHOST => $this->selfSigned ? 0 : 2,
         ];
-        if ($this->tls->certificate() !== null) {
-            $options[CURLOPT_CAINFO] = $this->tls->certificate();
-        }
         $body = (string) $request->getBody();
         if ($body !== '') {
             $options[CURLOPT_POSTFIELDS] = $body;

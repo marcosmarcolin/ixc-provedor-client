@@ -6,7 +6,6 @@ namespace Marcolin\IxcProvedor\Tests\Unit;
 
 use Marcolin\IxcProvedor\Http\CurlException;
 use Marcolin\IxcProvedor\Http\CurlHttpClient;
-use Marcolin\IxcProvedor\Tls;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\Request;
 use PHPUnit\Framework\TestCase;
@@ -14,36 +13,20 @@ use Psr\Http\Client\NetworkExceptionInterface;
 
 final class CurlHttpClientTest extends TestCase
 {
-    public function testAcceptsSelfSignedCertificatesByDefault(): void
+    public function testVerifiesTheCertificateByDefault(): void
     {
         $options = $this->client()->options(new Request('POST', 'https://ixc.example.com/webservice/v1/cliente'));
 
-        self::assertFalse($options[CURLOPT_SSL_VERIFYPEER]);
-        self::assertSame(0, $options[CURLOPT_SSL_VERIFYHOST]);
-        self::assertArrayNotHasKey(CURLOPT_CAINFO, $options);
-    }
-
-    public function testVerifiesAgainstTheSystemWhenAsked(): void
-    {
-        $options = $this->client(Tls::verify())->options(new Request('GET', 'https://ixc.example.com'));
-
         self::assertTrue($options[CURLOPT_SSL_VERIFYPEER]);
         self::assertSame(2, $options[CURLOPT_SSL_VERIFYHOST]);
-        self::assertArrayNotHasKey(CURLOPT_CAINFO, $options);
     }
 
-    public function testPinsTheGivenCertificate(): void
+    public function testAcceptsASelfSignedCertificateWhenAsked(): void
     {
-        $file = tempnam(sys_get_temp_dir(), 'pem');
-        self::assertIsString($file);
+        $options = $this->client(true)->options(new Request('POST', 'https://ixc.example.com/webservice/v1/cliente'));
 
-        try {
-            $options = $this->client(Tls::verifyWith($file))->options(new Request('GET', 'https://ixc.example.com'));
-            self::assertTrue($options[CURLOPT_SSL_VERIFYPEER]);
-            self::assertSame($file, $options[CURLOPT_CAINFO]);
-        } finally {
-            unlink($file);
-        }
+        self::assertFalse($options[CURLOPT_SSL_VERIFYPEER]);
+        self::assertSame(0, $options[CURLOPT_SSL_VERIFYHOST]);
     }
 
     public function testSendsTheMethodHeadersAndBodyAsGiven(): void
@@ -99,7 +82,7 @@ final class CurlHttpClientTest extends TestCase
         $request = new Request('POST', 'http://127.0.0.1:1/webservice/v1/cliente');
 
         try {
-            (new CurlHttpClient(new Psr17Factory(), new Psr17Factory(), null, 5, 2))->sendRequest($request);
+            (new CurlHttpClient(new Psr17Factory(), new Psr17Factory(), false, 5, 2))->sendRequest($request);
             self::fail('Expected a CurlException.');
         } catch (CurlException $exception) {
             self::assertInstanceOf(NetworkExceptionInterface::class, $exception);
@@ -108,8 +91,8 @@ final class CurlHttpClientTest extends TestCase
         }
     }
 
-    private function client(?Tls $tls = null): CurlHttpClient
+    private function client(bool $selfSigned = false): CurlHttpClient
     {
-        return new CurlHttpClient(new Psr17Factory(), new Psr17Factory(), $tls);
+        return new CurlHttpClient(new Psr17Factory(), new Psr17Factory(), $selfSigned);
     }
 }

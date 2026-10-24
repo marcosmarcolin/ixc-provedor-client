@@ -31,16 +31,10 @@ Passe só o endereço da instância, sem `/webservice/v1`: os exemplos da wiki i
 
 ### Certificado
 
-Por padrão, o certificado da instância **não é verificado**, então certificados autoassinados, comuns no IXC Provedor, funcionam sem configuração, como o `$selfSigned = true` do cliente oficial. Isso deixa a conexão sujeita a interceptação. Para verificar, passe um `Tls`:
+O certificado da instância é verificado. Para aceitar um certificado autoassinado, passe `true` no terceiro parâmetro, como o `$selfSigned` do cliente oficial:
 
 ```php
-use Marcolin\IxcProvedor\Tls;
-
-// O certificado da própria instância (o endereço precisa bater com o do certificado)
-$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', Tls::verifyWith('/caminho/ixc.pem'));
-
-// As autoridades certificadoras do sistema, para um certificado válido (Let's Encrypt, por exemplo)
-$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', Tls::verify());
+$ixc = Client::create('https://192.168.0.10', '6:SEU_TOKEN', true);
 ```
 
 ### Outro cliente HTTP
@@ -140,7 +134,7 @@ As rotas ficam em `https://HOST/webservice/v1`. Hoje só existe a `v1`, que é o
 ```php
 use Marcolin\IxcProvedor\ApiVersion;
 
-$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', null, ApiVersion::v1());
+$ixc = Client::create('https://ixc.seuprovedor.com.br', '6:SEU_TOKEN', false, ApiVersion::v1());
 ```
 
 ## Erros

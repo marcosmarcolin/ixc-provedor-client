@@ -31,16 +31,10 @@ Pass only the instance's address, without `/webservice/v1`: the wiki examples in
 
 ### Certificate
 
-By default, the instance's certificate is **not verified**, so self-signed certificates, common on IXC Provedor, work with no setup, as the official client's `$selfSigned = true` does. That leaves the connection open to interception. To verify it, pass a `Tls`:
+The instance's certificate is verified. To accept a self-signed certificate, pass `true` as the third parameter, as the official client's `$selfSigned`:
 
 ```php
-use Marcolin\IxcProvedor\Tls;
-
-// The instance's own certificate (the address must match the certificate's)
-$ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', Tls::verifyWith('/path/ixc.pem'));
-
-// The system's certificate authorities, for a valid certificate (Let's Encrypt, for example)
-$ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', Tls::verify());
+$ixc = Client::create('https://192.168.0.10', '6:YOUR_TOKEN', true);
 ```
 
 ### Another HTTP client
@@ -140,7 +134,7 @@ The routes live under `https://HOST/webservice/v1`. Today `v1` is the only versi
 ```php
 use Marcolin\IxcProvedor\ApiVersion;
 
-$ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', null, ApiVersion::v1());
+$ixc = Client::create('https://ixc.yourisp.com.br', '6:YOUR_TOKEN', false, ApiVersion::v1());
 ```
 
 ## Errors
