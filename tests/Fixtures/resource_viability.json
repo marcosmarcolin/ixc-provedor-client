@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"latitude\":\"-27.100\",\"longitude\":\"-52.615\"}",
+        "method": "POST",
+        "path": "webservice/v1/viabilidade_tecnica",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"success\":false,\"0\":{\"result\":{\"raio_defined\":false,\"area_defined\":false},\"status_viabilidade\":\"N\",\"planos\":[]}}"
+    }
+}

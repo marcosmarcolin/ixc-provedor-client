@@ -105,7 +105,12 @@ $response->body();   // the raw answer: JSON, text, base64 or empty
 $response->json();   // decoded; throws UnexpectedResponseException when it is not JSON
 ```
 
-Each resource answers in its own format, and some answer success even for a missing id. Check each one's answer.
+Business-rule errors (`{"type":"error"}`, such as "contract already active") become `ApiErrorException`. Otherwise, each resource answers in its own format, and some answer success even for a missing id. Check each one's answer. Some answers seen:
+
+- `gerar_protocolo_atendimento`: the protocol as a JSON string;
+- `get_boleto`: the data as JSON (`tipo_boleto` `dados`), the PDF in base64 (`arquivo` with `base64` `S`) or the raw PDF (`base64` `N`); an empty body for a missing invoice;
+- `desconectar_clientes`: the outcome comes inside `msg[]` (`{"msg":[{"type":"error",...}]}`), with no top-level `type`, so it never becomes an exception;
+- `imprimir_nota`: an HTML page when the invoice does not exist.
 
 ## API version
 

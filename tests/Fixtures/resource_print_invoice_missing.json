@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"id\":\"999999999\",\"base64\":\"S\"}",
+        "method": "POST",
+        "path": "webservice/v1/imprimir_nota",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/html; charset=ISO-8859-1"
+        },
+        "body_base64": "PHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCiAgICAgICAgICAgIGJvZHkgew0KICAgICAgICAgICAgICAgIGJhY2tncm91bmQtY29sb3I6ICNGRkY7DQogICAgICAgICAgICAgICAgdGV4dC1hbGlnbjpjZW50ZXI7DQogICAgICAgICAgICB9DQogICAgICAgICAgPC9zdHlsZT4NCiAgICAgICAgICA8ZGl2IHN0eWxlPSJmb250LWZhbWlseTogQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZjtmb250LXNpemU6IDEycHg7dGV4dC1hbGlnbjogY2VudGVyO3BhZGRpbmc6IDIwcHg7bWFyZ2luOiA1MHB4O2JhY2tncm91bmQ6ICNkOTUzNGY7Y29sb3I6ICNmZmY7ZGlzcGxheTogaW5saW5lLWJsb2NrOyI+DQogICAgICAgICAgICBFc3RlIGRvY3VtZW50byBu428gZXN04SB2aW5jdWxhZG8gYSB1bWEgbm90YSBmaXNjYWwhDQogICAgICAgICAgPC9kaXY+"
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"id\":\"2\"}",
+        "method": "POST",
+        "path": "webservice/v1/cliente_contrato_btn_lib_temp_24722",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "null"
+    }
+}

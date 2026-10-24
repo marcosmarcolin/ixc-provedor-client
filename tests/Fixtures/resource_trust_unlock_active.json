@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"id\":\"2\"}",
+        "method": "POST",
+        "path": "webservice/v1/desbloqueio_confianca",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"error\",\"message\":\"N\\u00e3o \\u00e9 poss\\u00edvel utilizar o bot\\u00e3o \\\\'Desbloqueio de confian\\u00e7a\\\\' quando o contrato estiver ativo.\"}"
+    }
+}

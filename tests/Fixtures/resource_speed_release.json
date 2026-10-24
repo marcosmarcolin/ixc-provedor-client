@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"get_id\":\"2\"}",
+        "method": "POST",
+        "path": "webservice/v1/liberacao_reducao_contrato_29157",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"error\",\"message\":\"Ops, aconteceu um problema e a a\\u00e7\\u00e3o n\\u00e3o pode ser executada. Por favor verifique se preencheu todos os campos referentes a esta funcionalidade no menu de Par\\u00e2metros.\"}"
+    }
+}

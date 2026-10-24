@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"id_atendimento\":\"2\",\"data_transferencia\":\"anon-40bb9d80\",\"id_departamento_origem\":\"1\",\"id_departamento_destino\":\"2\",\"id_responsavel_tecnico\":\"2\"}",
+        "method": "POST",
+        "path": "webservice/v1/su_transf_atendimento_26466",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"alert\":\"anon-70efef66\",\"message\":\"N\\u00e3o foi poss\\u00edvel prosseguir. Para transferir, assuma o atendimento.<br \\/>\",\"type\":\"error\"}"
+    }
+}

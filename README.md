@@ -105,7 +105,12 @@ $resposta->body();   // a resposta crua: JSON, texto, base64 ou vazia
 $resposta->json();   // decodificada; lança UnexpectedResponseException se não for JSON
 ```
 
-Cada recurso responde num formato, e alguns respondem sucesso mesmo para um id inexistente. Confira o retorno de cada um.
+Erros de regra de negócio (`{"type":"error"}`, como "contrato já ativo") viram `ApiErrorException`. Fora isso, cada recurso responde num formato próprio, e alguns respondem sucesso mesmo para um id inexistente. Confira o retorno de cada um. Alguns exemplos observados:
+
+- `gerar_protocolo_atendimento`: o protocolo como string JSON;
+- `get_boleto`: os dados em JSON (`tipo_boleto` `dados`), o PDF em base64 (`arquivo` com `base64` `S`) ou o PDF binário (`base64` `N`); corpo vazio para fatura inexistente;
+- `desconectar_clientes`: o resultado vem dentro de `msg[]` (`{"msg":[{"type":"error",...}]}`), sem `type` no topo, então nunca vira exceção;
+- `imprimir_nota`: uma página HTML quando a nota não existe.
 
 ## Versão da API
 

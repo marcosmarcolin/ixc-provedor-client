@@ -118,7 +118,23 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
   - delete: `DELETE /<table>/<id>`; success is `{"type":"success","message":"Registro 2 excluido com sucesso!"}`, also when the id does not exist.
 - **Resources:** names are free-form strings, some with a numeric suffix (`cliente_contrato_15464`, `radusuarios_25452`), so they are never a closed list; the wiki documents each one's parameters (`recursos_api.php`).
   - The wiki calls them in two ways: `$api->get()`, which is `POST` with `ixcsoft: listar` (`get_boleto`, `desbloqueio_confianca`, `gerar_protocolo_atendimento`, `cliente_contrato_15464`...), and `$api->post()`, a plain `POST` (`su_oss_chamado_fechar`, `su_oss_chamado_analisar`, `radusuarios_25452`...). `Resource::list()` and `Resource::post()` mirror them. Parameters go as given (the wiki already writes dates as `d/m/Y`); a JSON body works like the official client's form data (`resource_protocol_listar`, `resource_protocol_form`).
-  - Answers seen: a JSON string (`gerar_protocolo_atendimento` → `"20261024162331914000"`, 20 digits, the same with or without `ixcsoft: listar`), a JSON object with `type` (`resource_contract_status_missing`), `{"type":"error"}` (`resource_trust_unlock_missing`, `resource_close_order_missing`), and an empty body with 200 (`get_boleto` with a missing invoice, `resource_boleto_missing`). The wiki also shows base64 content (`get_boleto` with `base64` `S`) and binary content (`base64` `N`), *to confirm*. So a resource returns a raw `Response`.
+  - Every resource of the wiki's `recursos_api.php` was called with real records (`composer capture -- resources`). Business-rule errors are `{"type":"error"}`, so `ApiErrorException` (`resource_contract_status_active`, `resource_trust_unlock_active`, `resource_speed_release`, `resource_transfer_ticket`, `resource_comodato_incomplete`). Successes are `{"type":"success"}` (`resource_activate_contract`, `resource_clear_mac`, `resource_analyze_order`, `resource_forward_order`, `resource_close_order`, `resource_receive_invoice`). The rest answer in their own format, which is why a resource returns a raw `Response`:
+
+    | Resource | Answer seen |
+    |---|---|
+    | `gerar_protocolo_atendimento` | a JSON string of 20 digits, the same with or without `ixcsoft: listar` |
+    | `cliente_contrato_btn_lib_temp_24722` | `null` |
+    | `viabilidade_tecnica` | `{"success": false, "0": {...}}` |
+    | `desconectar_clientes` | no top-level `type`: the outcome is in `msg[].type` (`error` here), so it never raises |
+    | `get_boleto` `dados` | a JSON array of the slip's data |
+    | `get_boleto` `arquivo` + `base64` `S` | the PDF in base64 (`text/html` content type) |
+    | `get_boleto` `arquivo` + `base64` `N` | the raw PDF, `application/pdf` |
+    | `get_boleto` `mail` | `{"registros":[{"sucesso":true}]}` |
+    | `get_boleto` `sms`, or a missing invoice | an empty body |
+    | `imprimir_nota` with a missing sale | an ISO-8859-1 HTML page with HTTP 200 |
+
+  - False successes: `cliente_contrato_15464` for a missing contract, `radusuarios_25452` for a missing login, and `su_oss_chamado_analisar` / `su_oss_chamado_fechar` for a missing order (they insert a record anyway).
+  - Capturing them needs: a client, a plan, contract type and model, document type, billing wallet, seller, account, RADIUS group, order subject and sector on the instance; the API user linked to a collaborator of the order's sector (for `su_oss_chamado_alterar_setor`). The run leaves records the API refuses to delete (a finalized order, a received invoice, the contract and client): use a disposable instance.
 - **Not copied from the official client:** it runs every decoded value through `utf8_decode()`, turning UTF-8 into ISO-8859-1; this client returns UTF-8 as decoded.
 
 ## Roadmap

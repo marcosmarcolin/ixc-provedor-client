@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"id_contrato\":\"2\"}",
+        "method": "POST",
+        "path": "webservice/v1/cliente_contrato_15464",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"error\",\"message\":\"N\\u00e3o \\u00e9 poss\\u00edvel prossegui, quando o status de acesso j\\u00e1 est\\u00e1 'Ativo'.\"}"
+    }
+}

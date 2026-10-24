@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"id_oss_chamado\":\"2\",\"id_contrato\":\"2\",\"id_produto\":\"1\",\"descricao\":\"anon-46070d4b\",\"data\":\"anon-77e735c8\",\"qtde_saida\":\"1\"}",
+        "method": "POST",
+        "path": "webservice/v1/su_oss_mov_comodato_wiz_novo",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"error\",\"message\":\"Preencha Estoque<br \\/>Preencha fator_conversao<br \\/>Preencha Tipo<br \\/>Preencha Unidade<br \\/>Preencha Unidade sigla<br \\/>Preencha Valor unit\\u00e1rio<br \\/>Preencha Valor total<br \\/>Preencha Filial<br \\/>Preencha Almoxarifado<br \\/>Preencha id_classificacao_tributaria\",\"atualiza_campos\":[{\"tipo\":\"i\",\"campo\":\"id_pedido_os\",\"valor\":\"\"},{\"tipo\":\"i\",\"campo\":\"estoque\",\"valor\":\"\"}]}"
+    }
+}
