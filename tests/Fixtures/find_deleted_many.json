@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"qtype\":\"cliente_arquivos.id\",\"query\":\"18\",\"oper\":\">=\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"cliente_arquivos.id\",\"sortorder\":\"asc\",\"grid_param\":\"[{\\\"TB\\\":\\\"cliente_arquivos.id\\\",\\\"OP\\\":\\\"<=\\\",\\\"P\\\":\\\"20\\\"}]\"}",
+        "method": "POST",
+        "path": "webservice/v1/cliente_arquivos",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"page\":\"1\",\"total\":\"0\"}"
+    }
+}

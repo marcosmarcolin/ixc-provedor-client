@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"obs\":\"anon-46070d4b\"}",
+        "method": "PATCH",
+        "path": "webservice/v1/cliente_contrato/999999999",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"tipo\":\"error\",\"valor\":\"Registro n\\u00e3o encontrado!<br \\/>Preencha Filial<br \\/>Preencha Data base financeiro<br \\/>Preencha Bloqueio autom\\u00e1tico.<br \\/>Preencha Plano de venda<br \\/>Preencha Descri\\u00e7\\u00e3o<br \\/>Preencha Tipo<br \\/>Preencha Aviso autom\\u00e1tico<br \\/>Preencha Tipo de cobran\\u00e7a<br \\/>Preencha Carteira de cobran\\u00e7a<br \\/>Preencha Modelo para impress\\u00e3o<br \\/>Preencha Vendedor<br \\/>Preencha Regime cont\\u00e1bil - CRE<br \\/>Preencha Tipo documento fatura<br \\/>Preencha Tipo de envio de cobran\\u00e7a<br \\/>Preencha Gera financeiro autom\\u00e1tico<br \\/>Preencha Considera endere\\u00e7o padr\\u00e3o do cliente<br \\/>Preencha Base gera\\u00e7\\u00e3o por tipo de documento\",\"atualiza_campos\":[{\"tipo\":\"d\",\"campo\":\"data_cadastro_sistema\",\"valor\":\"\"}]}"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"obs\":\"anon-46070d4b\"}",
+        "method": "PATCH",
+        "path": "webservice/v1/cliente/999999999",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"tipo\":\"error\",\"valor\":\"Registro n\\u00e3o encontrado!<br \\/>Preencha Ativo<br \\/>Preencha Raz\\u00e3o social\\/nome<br \\/>Preencha Endere\\u00e7o<br \\/>Preencha Cidade<br \\/>Preencha Bairro<br \\/>Preencha N\\u00famero<br \\/>Preencha CEP<br \\/>Preencha Tipo pessoa<br \\/>Preencha Tipo de assinante<br \\/>Preencha Classifica\\u00e7\\u00e3o de ISS<br \\/>Preencha Contribuinte ICMS<br \\/>Preencha Tipo de localidade\",\"atualiza_campos\":[{\"tipo\":\"i\",\"campo\":\"crm_data_novo\",\"valor\":\"\"}]}"
+    }
+}

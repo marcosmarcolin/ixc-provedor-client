@@ -1,0 +1,15 @@
+{
+    "request": {
+        "body": null,
+        "method": "DELETE",
+        "path": "webservice/v1/cliente_arquivos/20,999999999",
+        "headers": []
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"message\":\"Registros 20 excluido com sucesso!\",\"type\":\"success\"}"
+    }
+}

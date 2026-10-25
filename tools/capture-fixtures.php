@@ -3,7 +3,9 @@
 /**
  * Captures real responses from the IXC Provedor instance configured in .env as fixtures.
  *
- * Usage (Docker only): docker compose run --rm php composer capture [-- routes|resources]
+ * Usage (Docker only): docker compose run --rm php composer capture [-- routes|resources|patch|delete_many]
+ * Opt-in groups, each with the API user's group restricted by hand first, then restored:
+ * blocked_ip (networks that leave the capture's IP out) and blocked_time (hours that leave now out).
  * Raw responses go to tests/Fixtures/raw/ (gitignored); anonymized ones to tests/Fixtures/.
  * The write scenarios create, change and delete a client: point it at a disposable instance only.
  */
@@ -50,6 +52,46 @@ $groups = array_slice($argv ?? [], 1);
 $wants = static function (string $group) use ($groups): bool {
     return $groups === [] || in_array($group, $groups, true);
 };
+
+// Access refused by the user's group rules: only run when asked, since the restriction is set by hand.
+if (in_array('blocked_ip', $groups, true)) {
+    $recorder->record('error_blocked_ip', 'POST', $clients, $listing, Requests::query('cliente.id', '>', '0'));
+}
+if (in_array('blocked_time', $groups, true)) {
+    $recorder->record('error_blocked_time', 'POST', $clients, $listing, Requests::query('cliente.id', '>', '0'));
+}
+
+// PATCH answers in a different format per route, so a few routes are tried with an id that does not exist.
+if ($wants('patch')) {
+    $patch = (string) json_encode(['obs' => 'teste']);
+    $recorder->record('patch_not_found', 'PATCH', $clients . '/999999999', $json, $patch);
+    $recorder->record('patch_not_found_contract', 'PATCH', 'webservice/v1/cliente_contrato/999999999', $json, $patch);
+    $recorder->record('patch_server_error', 'PATCH', 'webservice/v1/cidade/999999999', $json, $patch);
+    $recorder->record('patch_not_implemented', 'PATCH', 'webservice/v1/cliente_arquivos/999999999', $json, $patch);
+}
+
+// Several ids in one DELETE, on files of the test client created here.
+if ($wants('delete_many')) {
+    $files = 'webservice/v1/cliente_arquivos';
+    $owner = (new TestData($http))->client();
+    $upload = $root . '/tests/Fixtures/raw/upload.txt';
+    file_put_contents($upload, "conteudo de teste do ixc-provedor-client\n");
+    $fileIds = [];
+    foreach (['um', 'dois', 'tres'] as $label) {
+        $fileIds[] = Requests::firstId($http->send('POST', $files, [], [
+            'id_cliente' => $owner,
+            'descricao' => 'Arquivo ' . $label,
+            'local_arquivo' => new CURLFile($upload, 'text/plain', $label . '.txt'),
+        ])['body']);
+    }
+    $recorder->record('delete_many', 'DELETE', $files . '/' . $fileIds[0] . ',' . $fileIds[1]);
+    $recorder->record('delete_many_with_missing', 'DELETE', $files . '/' . $fileIds[2] . ',999999999');
+    $range = Requests::query('cliente_arquivos.id', '>=', $fileIds[0], [
+        'grid_param' => (string) json_encode([['TB' => 'cliente_arquivos.id', 'OP' => '<=', 'P' => $fileIds[2]]]),
+    ]);
+    $recorder->record('find_deleted_many', 'POST', $files, $listing, $range);
+    $recorder->record('delete_not_found_error', 'DELETE', $files . '/999999999');
+}
 
 // Resources, called with ids that do not exist: their errors and formats need no data on the instance.
 if ($wants('resources')) {
