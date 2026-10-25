@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Marcolin\IxcProvedor\Exception;
 
+use Marcolin\IxcProvedor\ApiText;
 use RuntimeException;
 
 /**
@@ -25,7 +26,7 @@ final class ApiErrorException extends RuntimeException implements IxcException
         $this->apiMessage = $apiMessage;
         $this->responseBody = $responseBody;
 
-        $messages = self::split($apiMessage);
+        $messages = ApiText::split($apiMessage);
         parent::__construct($messages === [] ? sprintf('HTTP %d', $statusCode) : implode('; ', $messages));
     }
 
@@ -43,34 +44,18 @@ final class ApiErrorException extends RuntimeException implements IxcException
     }
 
     /**
-     * The API joins several validation errors with <br />; this gives them one by one, as plain text.
+     * The API joins several validation errors with <br />; this gives them one by one, as plain text,
+     * with double-encoded text repaired.
      *
      * @return list<string>
      */
     public function messages(): array
     {
-        return self::split($this->apiMessage);
+        return ApiText::split($this->apiMessage);
     }
 
     public function responseBody(): string
     {
         return $this->responseBody;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private static function split(string $message): array
-    {
-        $parts = preg_split('/<br\s*\/?>/i', $message) ?: [];
-        $messages = [];
-        foreach ($parts as $part) {
-            $text = trim(html_entity_decode(strip_tags($part), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-            if ($text !== '') {
-                $messages[] = $text;
-            }
-        }
-
-        return $messages;
     }
 }

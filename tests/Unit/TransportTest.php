@@ -103,6 +103,8 @@ final class TransportTest extends TestCase
         yield 'unknown version' => ['error_unknown_version', 'Versão v2 do webservice não está disponível!'];
         yield 'validation on update' => ['update_invalid', 'Preencha Razão social/nome'];
         yield 'partial patch' => ['patch_partial', 'CPF/CNPJ obrigatório!'];
+        yield 'blocked ip, double-encoded' => ['error_blocked_ip', 'Seu IP não está liberado para efetuar login!'];
+        yield 'blocked hour, double-encoded' => ['error_blocked_time', 'Horário não permitido!'];
     }
 
     /**

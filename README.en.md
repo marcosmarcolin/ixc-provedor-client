@@ -156,7 +156,7 @@ Every exception from a request implements `Marcolin\IxcProvedor\Exception\IxcExc
 | `AuthenticationException` | HTTP 401: the token was rejected (wrong secret or unknown user) |
 | `TransportException` | the request got no answer (DNS, connection, TLS, timeout) |
 
-An `ApiErrorException`'s message is the API's own text, in Portuguese, so it can be shown to users:
+An `ApiErrorException`'s message is the API's own text, in Portuguese, so it can be shown to users. Messages the API sends double-encoded, such as `nÃ£o` for `não` in access refusals by IP or hour, come repaired:
 
 ```php
 try {
