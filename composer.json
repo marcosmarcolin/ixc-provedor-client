@@ -67,6 +67,10 @@
       "@phpcs",
       "@phpstan"
     ],
+    "coverage": [
+      "phpunit --colors=never --coverage-text --coverage-clover build/coverage.xml",
+      "php tools/check-coverage.php build/coverage.xml 95"
+    ],
     "capture": "php tools/capture-fixtures.php"
   },
   "config": {

@@ -47,3 +47,28 @@ jobs:
       - run: composer install --no-interaction
 
       - run: vendor/bin/phpunit
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          ini-file: development
+          coverage: pcov
+
+      - run: composer install --no-interaction
+
+      - run: composer coverage --no-ansi 2>&1 | tee coverage.txt
+
+      - if: always()
+        run: |
+          {
+            echo '## Coverage'
+            echo '```'
+            sed -n '/Summary:/,/^$/p' coverage.txt
+            grep '^Line coverage' coverage.txt || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
