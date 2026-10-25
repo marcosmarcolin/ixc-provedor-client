@@ -125,6 +125,8 @@ $resposta = $ixc->resource(Resources::FINALIZAR_ORDEM_SERVICO)->post([
 $resposta->status();
 $resposta->body();   // a resposta crua: JSON, texto, base64 ou vazia
 $resposta->json();   // decodificada; lança UnexpectedResponseException se não for JSON
+$resposta->message();    // a mensagem da API, como "Contrato ativado com sucesso!"; vazia se não houver
+$resposta->messages();   // as mensagens uma a uma, quando a API manda várias separadas por <br />
 ```
 
 Erros de regra de negócio (`{"type":"error"}`, como "contrato já ativo") viram `ApiErrorException`. Fora isso, cada recurso responde num formato próprio, e alguns respondem sucesso mesmo para um id inexistente. Confira o retorno de cada um. Alguns exemplos observados:

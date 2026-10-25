@@ -125,6 +125,8 @@ $response = $ixc->resource(Resources::FINALIZAR_ORDEM_SERVICO)->post([
 $response->status();
 $response->body();   // the raw answer: JSON, text, base64 or empty
 $response->json();   // decoded; throws UnexpectedResponseException when it is not JSON
+$response->message();    // the API's message, such as "Contrato ativado com sucesso!"; empty when there is none
+$response->messages();   // the messages one by one, when the API sends several separated by <br />
 ```
 
 Business-rule errors (`{"type":"error"}`, such as "contract already active") become `ApiErrorException`. Otherwise, each resource answers in its own format, and some answer success even for a missing id. Check each one's answer. Some answers seen:

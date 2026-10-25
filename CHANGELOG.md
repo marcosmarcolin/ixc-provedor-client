@@ -6,6 +6,7 @@ All notable changes to this package are documented here. The format follows [Kee
 
 ### Added
 
+- `Response::message()` and `messages()`: the `message` of a resource's answer as plain text, such as `"Contrato ativado com sucesso!"`, split on `<br />` like `ApiErrorException`'s; empty when the answer has none.
 - `Route::delete()` takes several ids, `delete('18', '19')`, and deletes them in one request, as the API accepts them comma-separated.
 
 ### Fixed
