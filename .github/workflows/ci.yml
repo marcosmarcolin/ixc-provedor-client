@@ -17,12 +17,17 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Oldest and newest: PHPStan's function signatures depend on the running PHP.
+        php-version: ['7.4', '8.5']
     steps:
       - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ matrix.php-version }}
           ini-file: development
 
       - run: composer install --no-interaction

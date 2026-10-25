@@ -46,7 +46,7 @@ $json = ['Content-Type' => 'application/json'];
 $listing = ['ixcsoft' => 'listar', 'Content-Type' => 'application/json'];
 $clients = 'webservice/v1/cliente';
 
-$groups = array_slice($argv, 1);
+$groups = array_slice($argv ?? [], 1);
 $wants = static function (string $group) use ($groups): bool {
     return $groups === [] || in_array($group, $groups, true);
 };
