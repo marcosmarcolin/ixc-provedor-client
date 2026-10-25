@@ -33,7 +33,7 @@ Never implement from memory. When unsure, check the wiki or capture a real respo
 A change is done only when all of these hold:
 1. **It is tested.** New behavior comes with tests, and a bug fix comes with a test that fails without the fix. HTTP is faked with `php-http/mock-client`; tests never hit the network.
 2. **No secrets:** gitleaks passes, locally (hooks) and in CI.
-3. **The quality tools pass:** PHPUnit, phpcs (PSR-12) and PHPStan at level `max`, locally in Docker and in CI, on every PHP version from 7.4 to the latest.
+3. **The quality tools pass:** PHPUnit, phpcs (PSR-12) and PHPStan at level `max`, locally in Docker and in CI, on every PHP version from 7.4 to the latest. Line coverage stays at 95% or more (`composer coverage`, the `coverage` job in CI, with pcov).
 4. **The docs are current:** both READMEs, `CHANGELOG.md` (under `Unreleased`) and CLAUDE.md match the behavior.
 
 ## Code rules
@@ -63,6 +63,7 @@ Never run PHP, Composer, PHPUnit, phpcs or PHPStan on the host. Always use Docke
 docker compose run --rm php composer install
 docker compose run --rm php vendor/bin/phpunit
 docker compose run --rm php composer lint
+docker compose run --rm php composer coverage   # line coverage, fails below 95%
 PHP_VERSION=8.4 docker compose build php && PHP_VERSION=8.4 docker compose run --rm php vendor/bin/phpunit
 git config core.hooksPath .githooks   # once per clone: gitleaks before every commit and push
 ```

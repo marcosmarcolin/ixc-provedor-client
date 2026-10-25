@@ -169,6 +169,7 @@ Everything runs in Docker (PHP 7.4 by default):
 docker compose run --rm php composer install
 docker compose run --rm php vendor/bin/phpunit
 docker compose run --rm php composer lint
+docker compose run --rm php composer coverage   # line coverage, 95% minimum
 ```
 
 The `pre-commit` and `pre-push` hooks run [gitleaks](https://github.com/gitleaks/gitleaks) (also through Docker) and block commits and pushes that contain secrets, such as an IXC token. Enable them once per clone:
