@@ -96,8 +96,8 @@ $ixc->route('cliente_arquivos')->create(
 - Fields may be given without the route name: `razao` becomes `cliente.razao`. Operators are the API's, such as `=`, `!=`, `>` and `L` (contains).
 - Every value comes back as a string, ids included.
 - **Insert:** the API validates the whole form. Build the row from an existing record (`find`) or the wiki's full template and change only what is needed.
-- **Dates:** listings return `Y-m-d`, but writes expect `d/m/Y`. A `Y-m-d` date is saved blank or wrong, and the API still answers success. So the package converts `Y-m-d` to `d/m/Y` on every write; dates can be sent as the listing returned them.
-- **Update:** `update()` reads the record, applies the changes and writes the whole record back, because the API validates every field (two requests). For a missing id it throws `NotFoundException`. To write a full row directly, use `replace($id, $row)`; `patch($id, $row)` does the same with the `PATCH` method, which the API also validates as the whole record.
+- **Dates:** listings return `Y-m-d`, but writes expect `d/m/Y`. A `Y-m-d` date is saved blank or wrong with a success answer (`cliente`), or refused with an error (`cliente_contrato`, `fn_areceber`). So the package converts `Y-m-d` to `d/m/Y` on every write; dates can be sent as the listing returned them.
+- **Update:** `update()` reads the record, applies the changes and writes the whole record back, because the API validates every field (two requests). For a missing id it throws `NotFoundException`. Fields the listing returns empty but the write requires must go in the changes, such as `tipo_recebimento` on `fn_areceber`. To write a full row directly, use `replace($id, $row)`; `patch($id, $row)` does the same with the `PATCH` method, which the API also validates as the whole record.
 - **False successes:** the API answers success to `replace()` of an id that does not exist, and to `delete()` too on most routes. On some, such as `cliente_arquivos`, deleting a missing id throws `ApiErrorException`. In a `delete()` of several ids, the missing ones are skipped.
 
 ## Resources

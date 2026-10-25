@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"id_remessa\":\"0\",\"gateway_link\":\"\",\"nn_boleto\":\"\",\"boleto\":\"0\",\"data_inicial\":\"0000-00-00\",\"data_final\":\"0000-00-00\",\"estornado\":\"\",\"conta_recebimento\":\"0\",\"bandeira_pagamento\":\"\",\"recebido_por_recorrencia\":\"\",\"valor_juros\":\"1.00\",\"valor_multas\":\"1.00\",\"liberado\":\"S\",\"filial_id\":\"1\",\"status\":\"A\",\"data_emissao\":\"2000-01-01\",\"data_vencimento\":\"2000-01-01\",\"valor\":\"1.00\",\"obs\":\"\",\"valor_recebido\":\"1.00\",\"valor_aberto\":\"1.00\",\"status_billing_hub\":\"\",\"em_cobranca\":\"\",\"id_cliente\":\"18\",\"pagamento_valor\":\"1.00\",\"pagamento_data\":\"0000-00-00\",\"id_carteira_cobranca\":\"1\",\"credito_data\":\"0000-00-00\",\"baixa_data\":\"0000-00-00 00:00:00\",\"numero_parcela_recorrente\":\"0\",\"documento\":\"anon-9aed5411\",\"id_saida\":\"0\",\"tipo_renegociacao\":\"\",\"tipo_recebimento\":\"B\",\"valor_cancelado\":\"1.00\",\"data_cancelamento\":\"0000-00-00\",\"id_mot_cancelamento\":\"0\",\"previsao\":\"N\",\"id_renegociacao\":\"0\",\"id_cobranca\":\"0\",\"id_renegociacao_novo\":\"0\",\"libera_periodo\":\"N\",\"impresso\":\"\",\"forma_recebimento\":\"M\",\"status_cobranca\":\"\",\"arquivo_remessa_baixado\":\"\",\"nparcela\":\"0\",\"id_nota_gerada_opc4\":\"0\",\"tipo_cobranca\":\"\",\"id_nota_gerada\":\"0\",\"id_contrato_principal\":\"0\",\"id_im_imovel\":\"0\",\"id_contrato_avulso\":\"0\",\"id_nota_gerada_opc3\":\"0\",\"duplicata\":\"\",\"id_contrato\":\"4\",\"id_sip\":\"0\",\"parcela_proporcional\":\"\",\"gerencianet_token\":\"\",\"linha_digitavel\":\"\",\"tipo_pagamento_cartao\":\"\",\"titulo_protestado\":\"\",\"desconto_condicional_valor\":\"1.00\",\"validade_desconto_condicional\":\"0000-00-00\",\"id_conta\":\"1\",\"titulo_renegociado\":\"\",\"motivo_alteracao\":\"\",\"id_remessa_alteracao\":\"0\",\"cancelamento_id_operador\":\"0\",\"baixa_id_operador\":\"0\",\"titulo_importado\":\"\",\"origem_importacao\":\"\",\"ultima_atualizacao\":\"0000-00-00 00:00:00\",\"aguardando_confirmacao_pagamento\":\"\",\"parcelado_cartao\":\"\",\"pix_txid\":\"\",\"id_nota_gerada_opc2\":\"0\",\"recebido_via_pix\":\"\",\"id_lote_geracao_financeiro_fatura\":\"0\",\"pix_txid_recorrente\":\"\",\"pix_status_recorrente\":\"\",\"tipo_cobranca_pix\":\"\",\"data_prevista_tentativa_pix_recorrente\":\"0000-00-00\",\"tentativa_pix_recorrente\":\"0\",\"agencia_sequencial\":\"\"}",
+        "method": "PUT",
+        "path": "webservice/v1/fn_areceber/4",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": "{\"type\":\"error\",\"message\":\"date() expects parameter 2 to be int, bool given\",\"atualiza_campos\":[{\"tipo\":\"i\",\"campo\":\"baixa_id_operador\",\"valor\":\"0\"}]}"
+    }
+}

@@ -96,8 +96,8 @@ $ixc->route('cliente_arquivos')->create(
 - Os campos podem ir sem o nome da rota: `razao` vira `cliente.razao`. Os operadores são os da API, como `=`, `!=`, `>` e `L` (contém).
 - Todo valor volta como string, inclusive os ids.
 - **Inserir:** a API valida o formulário inteiro. Monte a linha a partir de um registro existente (`find`) ou do modelo completo da wiki e mude só o necessário.
-- **Datas:** a listagem devolve `Y-m-d`, mas a escrita espera `d/m/Y`. Uma data em `Y-m-d` é gravada vazia ou errada, e a API ainda responde sucesso. Por isso o pacote converte `Y-m-d` para `d/m/Y` em toda escrita; pode mandar as datas como vieram da listagem.
-- **Atualizar:** `update()` lê o registro, aplica as mudanças e grava o registro completo, porque a API valida todos os campos (são duas requisições). Num id inexistente, lança `NotFoundException`. Para gravar uma linha completa direto, use `replace($id, $linha)`; `patch($id, $linha)` faz o mesmo com o método `PATCH`, que a API também valida como o registro completo.
+- **Datas:** a listagem devolve `Y-m-d`, mas a escrita espera `d/m/Y`. Uma data em `Y-m-d` é gravada vazia ou errada com resposta de sucesso (`cliente`), ou recusada com erro (`cliente_contrato`, `fn_areceber`). Por isso o pacote converte `Y-m-d` para `d/m/Y` em toda escrita; pode mandar as datas como vieram da listagem.
+- **Atualizar:** `update()` lê o registro, aplica as mudanças e grava o registro completo, porque a API valida todos os campos (são duas requisições). Num id inexistente, lança `NotFoundException`. Campos que a listagem devolve vazios mas a escrita exige precisam ir nas mudanças, como `tipo_recebimento` em `fn_areceber`. Para gravar uma linha completa direto, use `replace($id, $linha)`; `patch($id, $linha)` faz o mesmo com o método `PATCH`, que a API também valida como o registro completo.
 - **Falsos sucessos:** a API responde sucesso a `replace()` de um id que não existe, e a `delete()` também na maioria das rotas. Em algumas, como `cliente_arquivos`, excluir um id inexistente lança `ApiErrorException`. Num `delete()` com vários ids, os que não existem são ignorados.
 
 ## Recursos
