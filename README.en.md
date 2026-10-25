@@ -149,7 +149,7 @@ Every exception from a request implements `Marcolin\IxcProvedor\Exception\IxcExc
 
 | Exception | When |
 |---|---|
-| `ApiErrorException` | the API answered `{"type":"error"}`, usually with HTTP 200, or an HTTP error status |
+| `ApiErrorException` | the API answered `{"type":"error"}` (or `{"tipo":"error"}`, on some PATCHes), usually with HTTP 200, or an HTTP error status |
 | `NotFoundException` | `update()` of a record that does not exist |
 | `UnexpectedResponseException` | the answer is not what the route returns, such as an HTML failure page |
 | `AuthenticationException` | HTTP 401: the token was rejected (wrong secret or unknown user) |

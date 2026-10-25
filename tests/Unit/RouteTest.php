@@ -227,6 +227,16 @@ final class RouteTest extends TestCase
         $this->route->patch('2', ['obs' => 'somente obs']);
     }
 
+    public function testPatchOfAMissingIdRaisesTheApiErrorInTipoValorFormat(): void
+    {
+        $this->http->addResponse(Fixture::response('patch_not_found'));
+
+        $this->expectException(ApiErrorException::class);
+        $this->expectExceptionMessage('Registro não encontrado!');
+
+        $this->route->patch('999999999', ['obs' => 'teste']);
+    }
+
     public function testDeleteSendsTheIdInThePath(): void
     {
         $this->http->addResponse(Fixture::response('delete'));

@@ -18,7 +18,8 @@ use Psr\Http\Message\StreamFactoryInterface;
  * Builds the authenticated PSR-7 request for a route, sends it, and turns the API's errors into exceptions.
  *
  * Errors are recognized by the body, not the status: the API answers most of them with HTTP 200 and
- * {"type": "error", "message": ...}. Other bodies, JSON or not, are returned untouched.
+ * {"type": "error", "message": ...}, some PATCH errors with {"tipo": "error", "valor": ...}. Other bodies,
+ * JSON or not, are returned untouched.
  */
 final class Transport
 {
@@ -105,16 +106,35 @@ final class Transport
 
         $body = (string) $response->getBody();
         $decoded = json_decode($body, true);
-        $isError = is_array($decoded) && ($decoded['type'] ?? null) === 'error';
-        if (!$isError && $status < 400) {
+        $error = is_array($decoded) ? self::errorText($decoded) : null;
+        if ($error === null && $status < 400) {
             return;
         }
 
-        $message = is_array($decoded) && isset($decoded['message']) && is_scalar($decoded['message'])
-            ? (string) $decoded['message']
-            : $response->getReasonPhrase();
+        if ($error === null || $error === '') {
+            $error = is_array($decoded) && isset($decoded['message']) && is_scalar($decoded['message'])
+                ? (string) $decoded['message']
+                : $response->getReasonPhrase();
+        }
 
-        throw new ApiErrorException($status, $message, $body);
+        throw new ApiErrorException($status, $error, $body);
+    }
+
+    /**
+     * The text of an error body, or null when the body is no error. Besides {"type": "error", "message": ...},
+     * some PATCH errors come as {"tipo": "error", "valor": ...}.
+     *
+     * @param array<mixed> $decoded
+     */
+    private static function errorText(array $decoded): ?string
+    {
+        foreach (['type' => 'message', 'tipo' => 'valor'] as $kind => $text) {
+            if (($decoded[$kind] ?? null) === 'error') {
+                return isset($decoded[$text]) && is_scalar($decoded[$text]) ? (string) $decoded[$text] : '';
+            }
+        }
+
+        return null;
     }
 
     private static function normalizeHost(string $host): string
