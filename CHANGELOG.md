@@ -4,6 +4,8 @@ All notable changes to this package are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-25
+
 ### Added
 
 - `Response::message()` and `messages()`: the `message` of a resource's answer as plain text, such as `"Contrato ativado com sucesso!"`, split on `<br />` like `ApiErrorException`'s; empty when the answer has none.
@@ -32,5 +34,6 @@ First release: a client for the public IXC Provedor API (`/webservice/v1`), cove
 - `ApiVersion`, with `v1` as the only supported version.
 - PHP 7.4 to 8.5.
 
-[Unreleased]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/marcosmarcolin/ixc-provedor-client/releases/tag/v0.1.0
