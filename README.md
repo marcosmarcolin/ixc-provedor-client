@@ -169,6 +169,8 @@ try {
 
 ## Desenvolvimento
 
+Para contribuir, veja o [CONTRIBUTING.md](CONTRIBUTING.md).
+
 Tudo roda em Docker (PHP 7.4 por padrão):
 
 ```sh

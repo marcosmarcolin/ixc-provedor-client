@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Vulnerabilidade de segurança
+    url: https://github.com/marcosmarcolin/ixc-provedor-client/security/advisories/new
+    about: Reporte em particular, nunca numa issue pública.
+  - name: Dúvidas sobre a API do IXC Provedor
+    url: https://wikiapiprovedor.ixcsoft.com.br
+    about: Rotas, recursos e parâmetros da API estão na wiki oficial.

@@ -1,0 +1,48 @@
+name: Bug
+description: Algo no pacote não funciona como esperado.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Nunca cole um token, host ou dado real de cliente.** Troque por valores fictícios antes de enviar.
+  - type: input
+    id: version
+    attributes:
+      label: Versão do pacote
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: input
+    id: php
+    attributes:
+      label: Versão do PHP
+      placeholder: "8.3"
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Rota ou recurso
+      description: Por exemplo `cliente` ou `get_boleto`.
+  - type: textarea
+    id: code
+    attributes:
+      label: Código
+      description: O menor trecho que reproduz o problema.
+      render: php
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que você esperava
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: O que aconteceu
+      description: Exceção, mensagem ou resposta da API (anonimizada).
+    validations:
+      required: true
