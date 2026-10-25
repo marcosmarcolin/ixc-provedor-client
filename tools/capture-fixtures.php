@@ -3,7 +3,7 @@
 /**
  * Captures real responses from the IXC Provedor instance configured in .env as fixtures.
  *
- * Usage (Docker only): docker compose run --rm php composer capture [-- routes|resources|patch|delete_many]
+ * Usage (Docker only): docker compose run --rm php composer capture [-- routes|resources|patch|delete_many|dates]
  * Opt-in groups, each with the API user's group restricted by hand first, then restored:
  * blocked_ip (networks that leave the capture's IP out) and blocked_time (hours that leave now out).
  * Raw responses go to tests/Fixtures/raw/ (gitignored); anonymized ones to tests/Fixtures/.
@@ -12,6 +12,7 @@
 
 declare(strict_types=1);
 
+use Marcolin\IxcProvedor\RowEncoder;
 use Marcolin\IxcProvedor\Tools\Anonymizer;
 use Marcolin\IxcProvedor\Tools\FixtureRecorder;
 use Marcolin\IxcProvedor\Tools\HttpCapture;
@@ -68,6 +69,30 @@ if ($wants('patch')) {
     $recorder->record('patch_not_found_contract', 'PATCH', 'webservice/v1/cliente_contrato/999999999', $json, $patch);
     $recorder->record('patch_server_error', 'PATCH', 'webservice/v1/cidade/999999999', $json, $patch);
     $recorder->record('patch_not_implemented', 'PATCH', 'webservice/v1/cliente_arquivos/999999999', $json, $patch);
+}
+
+// Dates on routes other than cliente: a new contract and invoice of the test client, written back as listed
+// (Y-m-d) and as RowEncoder sends them (d/m/Y), each followed by a read.
+if ($wants('dates')) {
+    $data = new TestData($http);
+    $owner = $data->client();
+    $contract = $data->contract($owner);
+    // The listing gives tipo_recebimento empty, which the write refuses, so it goes again as inserted.
+    $records = [
+        'contract' => ['cliente_contrato', $contract, []],
+        'invoice' => ['fn_areceber', $data->invoice($owner, $contract), ['tipo_recebimento' => 'B']],
+    ];
+    foreach ($records as $label => [$route, $recordId, $extra]) {
+        $path = 'webservice/v1/' . $route;
+        $read = Requests::query($route . '.id', '=', $recordId);
+        $listed = $recorder->record('find_' . $label, 'POST', $path, $listing, $read)['body'];
+        $row = array_merge(Requests::firstRow($listed), $extra);
+        unset($row['id']);
+        $one = $path . '/' . $recordId;
+        $recorder->record('update_as_listed_' . $label, 'PUT', $one, $json, (string) json_encode($row));
+        $recorder->record('update_encoded_' . $label, 'PUT', $one, $json, (new RowEncoder())->encode($row));
+        $recorder->record('find_after_update_encoded_' . $label, 'POST', $path, $listing, $read);
+    }
 }
 
 // Several ids in one DELETE, on files of the test client created here.

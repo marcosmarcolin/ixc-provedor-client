@@ -52,6 +52,36 @@ final class RowEncoderTest extends TestCase
         self::assertSame('01/01/2000', $encoded['data_nascimento']);
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function otherRoutes(): iterable
+    {
+        yield 'contract' => ['contract'];
+        yield 'invoice' => ['invoice'];
+    }
+
+    /**
+     * @dataProvider otherRoutes
+     */
+    public function testOtherRoutesRefuseListedDatesAndKeepEncodedOnes(string $record): void
+    {
+        // cliente_contrato and fn_areceber answer an error to a row written as listed, and keep every date
+        // of the row RowEncoder wrote.
+        self::assertSame('error', self::type('update_as_listed_' . $record));
+        self::assertSame('success', self::type('update_encoded_' . $record));
+
+        $before = Page::fromResponse(Fixture::response('find_' . $record))->rows()[0];
+        $after = Page::fromResponse(Fixture::response('find_after_update_encoded_' . $record))->rows()[0];
+        $dates = array_filter($before, static function ($value): bool {
+            return is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}/', $value) === 1;
+        });
+        self::assertGreaterThan(5, count($dates));
+        foreach ($dates as $field => $value) {
+            self::assertSame($value, $after[$field] ?? null, $field);
+        }
+    }
+
     public function testSendsEveryValueAsText(): void
     {
         self::assertSame('{"a":"1","b":"2.5","c":""}', (new RowEncoder())->encode(['a' => 1, 'b' => 2.5, 'c' => null]));
@@ -76,5 +106,14 @@ final class RowEncoderTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         (new RowEncoder())->encode(['campo' => $value]);
+    }
+
+    private static function type(string $fixture): string
+    {
+        $decoded = json_decode((string) Fixture::response($fixture)->getBody(), true);
+        self::assertIsArray($decoded);
+        self::assertIsString($decoded['type']);
+
+        return $decoded['type'];
     }
 }
