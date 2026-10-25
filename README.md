@@ -79,6 +79,7 @@ $cliente = $clientes->find('42');                          // array ou null
 $id = $clientes->create($linha);                           // id do novo registro
 $clientes->update('42', ['obs' => 'Alterado pela API']);   // muda só esses campos
 $clientes->delete('42');
+$clientes->delete('42', '43', '44');                       // vários numa requisição só
 ```
 
 Arquivos vão no campo de arquivo do formulário, num `create()`; o pacote envia a linha como multipart, o único formato em que a API aceita arquivos:
@@ -97,7 +98,7 @@ $ixc->route('cliente_arquivos')->create(
 - **Inserir:** a API valida o formulário inteiro. Monte a linha a partir de um registro existente (`find`) ou do modelo completo da wiki e mude só o necessário.
 - **Datas:** a listagem devolve `Y-m-d`, mas a escrita espera `d/m/Y`. Uma data em `Y-m-d` é gravada vazia ou errada, e a API ainda responde sucesso. Por isso o pacote converte `Y-m-d` para `d/m/Y` em toda escrita; pode mandar as datas como vieram da listagem.
 - **Atualizar:** `update()` lê o registro, aplica as mudanças e grava o registro completo, porque a API valida todos os campos (são duas requisições). Num id inexistente, lança `NotFoundException`. Para gravar uma linha completa direto, use `replace($id, $linha)`; `patch($id, $linha)` faz o mesmo com o método `PATCH`, que a API também valida como o registro completo.
-- **Falsos sucessos:** a API responde sucesso a `replace()` e `delete()` de um id que não existe.
+- **Falsos sucessos:** a API responde sucesso a `replace()` de um id que não existe, e a `delete()` também na maioria das rotas. Em algumas, como `cliente_arquivos`, excluir um id inexistente lança `ApiErrorException`. Num `delete()` com vários ids, os que não existem são ignorados.
 
 ## Recursos
 

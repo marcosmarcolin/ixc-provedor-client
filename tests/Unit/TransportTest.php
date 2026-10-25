@@ -302,7 +302,8 @@ final class TransportTest extends TestCase
         yield 'parent directory' => ['../cliente'];
         yield 'query string' => ['cliente?x=1'];
         yield 'trailing slash' => ['cliente/'];
-        yield 'list of ids' => ['cliente/1,2'];
+        yield 'empty id in a list' => ['cliente/1,'];
+        yield 'comma in the route' => ['cliente,1'];
     }
 
     /**

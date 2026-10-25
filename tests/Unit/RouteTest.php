@@ -249,6 +249,34 @@ final class RouteTest extends TestCase
         self::assertSame('https://ixc.example.com/webservice/v1/cliente/2', (string) $this->request(1)->getUri());
     }
 
+    public function testDeleteSendsSeveralIdsInOneRequest(): void
+    {
+        $this->http->addResponse(Fixture::response('delete_many'));
+
+        $this->route->delete('18', '19');
+
+        self::assertCount(1, $this->http->getRequests());
+        self::assertSame('DELETE', $this->request(0)->getMethod());
+        self::assertSame('https://ixc.example.com/webservice/v1/cliente/18,19', (string) $this->request(0)->getUri());
+    }
+
+    public function testDeleteRejectsAnInvalidIdAmongSeveral(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->route->delete('18', '19; DROP');
+    }
+
+    public function testDeleteOfAMissingIdRaisesTheErrorOfRoutesThatReportIt(): void
+    {
+        $this->http->addResponse(Fixture::response('delete_not_found_error'));
+
+        $this->expectException(ApiErrorException::class);
+        $this->expectExceptionMessage('Ocorreu um erro no servidor ao tentar excluir.');
+
+        $this->route->delete('999999999');
+    }
+
     public function testAWriteAnsweredWithoutSuccessIsUnexpected(): void
     {
         $this->http->addResponse(Fixture::response('list_invalid_field'));
