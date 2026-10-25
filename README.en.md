@@ -169,6 +169,8 @@ try {
 
 ## Development
 
+To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md) (in Portuguese).
+
 Everything runs in Docker (PHP 7.4 by default):
 
 ```sh

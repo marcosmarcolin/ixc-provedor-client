@@ -1,0 +1,25 @@
+name: Sugestão
+description: Uma melhoria ou algo novo no pacote.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        O pacote cobre a API pública como a wiki a documenta. Ficam de fora modelos ou DTOs por rota, dependência de framework e retry, cache ou rate limit (veja o [CONTRIBUTING.md](https://github.com/marcosmarcolin/ixc-provedor-client/blob/main/CONTRIBUTING.md)).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Necessidade
+      description: O que você quer fazer e por que não dá hoje.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: Como imagina a solução. Exemplos de código ajudam.
+  - type: input
+    id: wiki
+    attributes:
+      label: Página da wiki
+      description: Se a sugestão envolve uma rota ou recurso, o link da página dele na wiki.
