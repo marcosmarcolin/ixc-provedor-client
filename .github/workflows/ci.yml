@@ -23,6 +23,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
+          ini-file: development
 
       - run: composer install --no-interaction
 
@@ -40,6 +41,8 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          # The default production php.ini hides deprecations, which the tests turn into failures.
+          ini-file: development
 
       - run: composer install --no-interaction
 

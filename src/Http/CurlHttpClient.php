@@ -64,12 +64,12 @@ final class CurlHttpClient implements ClientInterface
         $body = curl_exec($curl);
         if (!is_string($body)) {
             $error = curl_error($curl);
-            curl_close($curl);
+            self::close($curl);
 
             throw new CurlException($error, $request);
         }
         $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-        curl_close($curl);
+        self::close($curl);
 
         /** @var list<string> $head */
         $response = $this->responseFactory->createResponse($status)
@@ -112,6 +112,18 @@ final class CurlHttpClient implements ClientInterface
         }
 
         return $options;
+    }
+
+    /**
+     * Frees the handle on PHP 7; since PHP 8 curl_close() does nothing and is deprecated in 8.5.
+     *
+     * @param resource $curl
+     */
+    private static function close($curl): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            curl_close($curl);
+        }
     }
 
     /**
