@@ -8,7 +8,7 @@
 [![Downloads](https://img.shields.io/packagist/dt/marcosmarcolin/ixc-provedor-client)](https://packagist.org/packages/marcosmarcolin/ixc-provedor-client/stats)
 [![License](https://img.shields.io/packagist/l/marcosmarcolin/ixc-provedor-client)](LICENSE)
 
-> Built on the public IXC Provedor API, documented at <a href="https://wikiapiprovedor.ixcsoft.com.br" target="_blank" rel="noopener noreferrer">wikiapiprovedor.ixcsoft.com.br</a>.
+> Built on the public IXC Provedor API, documented at [wikiapiprovedor.ixcsoft.com.br](https://wikiapiprovedor.ixcsoft.com.br).
 
 PHP client for the **IXC Provedor** API (webservice), by IXCSoft.
 
@@ -187,6 +187,10 @@ git config core.hooksPath .githooks
 CI runs the same scan over the whole history.
 
 The fixtures in `tests/Fixtures/` are real, anonymized responses, captured with `docker compose run --rm php composer capture` against the instance set in `.env` (`IXC_HOST`, `IXC_TOKEN`, `IXC_INSECURE`). The capture creates, changes and deletes a client: use a disposable instance only.
+
+## Security
+
+Report vulnerabilities privately, as [SECURITY.md](SECURITY.md#security-policy-english) explains.
 
 ## License
 

@@ -1,0 +1,9 @@
+version: 2
+updates:
+  # Only the CI actions: the package's own dependencies are ranges the user's project resolves.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
