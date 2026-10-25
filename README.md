@@ -156,7 +156,7 @@ Toda exceção de uma requisição implementa `Marcolin\IxcProvedor\Exception\Ix
 | `AuthenticationException` | HTTP 401: token recusado (segredo errado ou usuário inexistente) |
 | `TransportException` | a requisição não teve resposta (DNS, conexão, TLS, timeout) |
 
-A mensagem de um `ApiErrorException` é o texto da própria API, em português, e pode ser mostrada ao usuário:
+A mensagem de um `ApiErrorException` é o texto da própria API, em português, e pode ser mostrada ao usuário. As mensagens que a API manda com codificação dupla, como `nÃ£o` no lugar de `não` nas recusas de acesso por IP ou horário, chegam corrigidas:
 
 ```php
 try {

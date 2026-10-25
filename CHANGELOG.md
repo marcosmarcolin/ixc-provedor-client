@@ -10,6 +10,7 @@ All notable changes to this package are documented here. The format follows [Kee
 
 ### Fixed
 
+- The messages the API sends double-encoded, such as the access refusals by IP or hour (`Seu IP nÃ£o está liberado...`), are repaired in `ApiErrorException::getMessage()` and `messages()`; `apiMessage()` stays as sent.
 - A PATCH error answered as `{"tipo":"error","valor":...}`, as `cliente` and `cliente_contrato` do for an id that does not exist, now raises `ApiErrorException` with the API's message, instead of an `UnexpectedResponseException`.
 
 ## [0.1.0] - 2026-10-25

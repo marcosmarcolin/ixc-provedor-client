@@ -51,7 +51,7 @@ A change is done only when all of these hold:
 - PHPStan at level `max`. No new `ignoreErrors` without a written justification.
 - Short comments, one line, only to explain why.
 - No `echo`/`print`. Errors become exceptions.
-- **Error messages:** `ApiErrorException::getMessage()` is the API's own text (Portuguese, `<br />` split and joined with `; `), so applications can show it to users as is; the status is in `statusCode()`, the raw text in `apiMessage()`. Messages written by this package (invalid arguments, transport and authentication failures) are in English and never echo the host or the token. No configurable language: it would need global state or reach only part of the messages.
+- **Error messages:** `ApiErrorException::getMessage()` is the API's own text (Portuguese, double encoding repaired, `<br />` split and joined with `; `), so applications can show it to users as is; the status is in `statusCode()`, the raw text in `apiMessage()`. Messages written by this package (invalid arguments, transport and authentication failures) are in English and never echo the host or the token. No configurable language: it would need global state or reach only part of the messages.
 - No production dependencies besides the PSR interfaces, `php-http/discovery` and ext-curl.
 - Code, comments, CLAUDE.md, commits and PRs in English. `README.md` is in Portuguese, the language of the package's users, and `README.en.md` is its English translation; both start with a language switcher and change together.
 
@@ -96,6 +96,7 @@ src/
   Query.php               qtype/query/oper/page/rp/sortname/sortorder plus grid_param filters
   Page.php                one page of a listing: page, total, rows
   Response.php            raw response of a resource: status, body, json()
+  ApiText.php             the API's message as text: double encoding repaired, split on <br />
   Exception/              IxcException (interface), TransportException, AuthenticationException, ApiErrorException,
                           NotFoundException, UnexpectedResponseException
 ```
@@ -109,7 +110,7 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
 - **Authentication:** `Authorization: Basic base64("<user id>:<secret>")`; the secret is 64 hex characters. A wrong secret or unknown user answers HTTP 401 with an HTML page, not JSON (`error_wrong_secret`, `error_unknown_user`). A client IP outside the networks allowed for the user's group answers 200 with `{"type":"error"}`.
 - **Errors are mostly HTTP 200** with `{"type":"error","message":...}`: unknown route or resource, unknown version, validation failures, a blocked IP, and resource errors. So a response is an error when its JSON has `type` `error` (message in `message`) or, as some PATCHes answer, `tipo` `error` (message in `valor`), whatever the status; any other status of 400 or more is an error too. An unexpected failure can answer 200 with an HTML `<div>` (`list_invalid_field`).
 - **False successes:** some operations answer `{"type":"success"}` for an id that does not exist: `PUT` on a route (`update_not_found`), `DELETE` on most routes (`delete_not_found`; `cliente_arquivos` answers an error instead, `delete_not_found_error`) and the resource `cliente_contrato_15464` (`resource_contract_status_missing`). Never read success as "the record existed".
-- **Messages** may hold HTML line breaks (`<br />`) after each of several validation errors. The access refusals of the user's group, a blocked IP and a blocked hour, come double-encoded (`n\u00c3\u00a3o` for `não`; `error_blocked_ip`, `error_blocked_time`); every other message seen is plain UTF-8.
+- **Messages** may hold HTML line breaks (`<br />`) after each of several validation errors. The access refusals of the user's group, a blocked IP and a blocked hour, come double-encoded (`n\u00c3\u00a3o` for `não`; `error_blocked_ip`, `error_blocked_time`); every other message seen is plain UTF-8. `ApiText` repairs them: text made only of U+0000 to U+00FF, with something above U+007F, whose Latin-1 bytes are valid UTF-8, is decoded once.
 - **Content type** is not reliable: `text/x-json; charset=utf-8` on listings and writes, `text/html; charset=ISO-8859-1` on some errors and on resources. The header `ixc-type-response: application/json` makes listings answer `application/json`. Decide by the body, never by the content type.
 - **Routes** (forms):
   - list: `POST /<route>` with header `ixcsoft: listar`; the body (JSON or form data, both accepted) has `qtype`, `query`, `oper`, `page`, `rp`, `sortname`, `sortorder`, and optionally `grid_param`, a JSON-encoded string of `[{"TB": field, "OP": operator, "P": value}]`. `GET` with the header answers the same (`list_get_method`). The answer is `{"page": "1", "total": ..., "registros": [...]}`; `total` is sometimes an int and sometimes a numeric string (`list_page`, `list_cidade`), and an empty listing has no `registros` key: `{"page":"1","total":0}` (`list_empty`). Every value in a row is a string.
