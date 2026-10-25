@@ -2,6 +2,8 @@
 
 Obrigado pelo interesse! Este guia explica o que o pacote aceita e como preparar uma mudança.
 
+Quem participa do projeto segue o [Código de Conduta](CODE_OF_CONDUCT.md).
+
 ## Antes de começar
 
 - **Bug ou ideia:** abra uma [issue](https://github.com/marcosmarcolin/ixc-provedor-client/issues/new/choose) antes de escrever código, principalmente para mudanças grandes. Assim dá para combinar a abordagem antes do trabalho.
