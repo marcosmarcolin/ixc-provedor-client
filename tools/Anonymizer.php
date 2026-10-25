@@ -12,7 +12,7 @@ namespace Marcolin\IxcProvedor\Tools;
 final class Anonymizer
 {
     /** Keys whose values describe the response, not a customer: the API's own text and field names. */
-    private const KEPT_KEYS = ['page', 'total', 'type', 'message', 'campo'];
+    private const KEPT_KEYS = ['page', 'total', 'type', 'message', 'campo', 'tipo'];
 
     /**
      * @param mixed $value
@@ -22,8 +22,11 @@ final class Anonymizer
     {
         if (is_array($value)) {
             $result = [];
+            // Some PATCH errors come as {"tipo": "error", "valor": <message>}; elsewhere "valor" is data.
+            $isError = ($value['tipo'] ?? null) === 'error';
             foreach ($value as $key => $item) {
-                $result[$key] = in_array($key, self::KEPT_KEYS, true) ? $item : $this->anonymize($item);
+                $kept = in_array($key, self::KEPT_KEYS, true) || ($isError && $key === 'valor');
+                $result[$key] = $kept ? $item : $this->anonymize($item);
             }
 
             return $result;

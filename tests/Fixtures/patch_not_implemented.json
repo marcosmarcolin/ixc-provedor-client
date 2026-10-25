@@ -1,0 +1,17 @@
+{
+    "request": {
+        "body": "{\"obs\":\"anon-46070d4b\"}",
+        "method": "PATCH",
+        "path": "webservice/v1/cliente_arquivos/999999999",
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 501,
+        "headers": {
+            "content-type": "text/x-json; charset=utf-8"
+        },
+        "body": ""
+    }
+}

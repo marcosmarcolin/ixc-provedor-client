@@ -80,6 +80,13 @@ final class AnonymizerTest extends TestCase
         self::assertSame($body, (new Anonymizer())->anonymize($body));
     }
 
+    public function testKeepsTheMessageOfATipoValorError(): void
+    {
+        $body = ['tipo' => 'error', 'valor' => 'Registro não encontrado!<br />'];
+
+        self::assertSame($body, (new Anonymizer())->anonymize($body));
+    }
+
     public function testKeepsNonStringScalars(): void
     {
         self::assertSame([1, 2.5, true, null], (new Anonymizer())->anonymize([1, 2.5, true, null]));

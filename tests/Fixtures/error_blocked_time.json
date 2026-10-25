@@ -1,0 +1,18 @@
+{
+    "request": {
+        "body": "{\"qtype\":\"cliente.id\",\"query\":\"0\",\"oper\":\">\",\"page\":\"1\",\"rp\":\"2\",\"sortname\":\"cliente.id\",\"sortorder\":\"asc\"}",
+        "method": "POST",
+        "path": "webservice/v1/cliente",
+        "headers": {
+            "ixcsoft": "listar",
+            "Content-Type": "application/json"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "text/html; charset=ISO-8859-1"
+        },
+        "body": "{\"type\":\"error\",\"message\":\"Hor\\u00c3\\u00a1rio n\\u00c3\\u00a3o permitido!\"}"
+    }
+}
