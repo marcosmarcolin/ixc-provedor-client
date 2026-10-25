@@ -64,6 +64,31 @@ final class Response
     }
 
     /**
+     * The "message" of a JSON object body, as plain text: several messages joined with "; ", double encoding
+     * repaired. Empty when the body has none, as for a protocol string or a PDF.
+     */
+    public function message(): string
+    {
+        return implode('; ', $this->messages());
+    }
+
+    /**
+     * The "message" of a JSON object body split on the API's <br />, as plain text, such as
+     * ["MAC removido com sucesso para o(s) usuário(s) com ID: 2", "Ação executada com sucesso"].
+     *
+     * @return list<string>
+     */
+    public function messages(): array
+    {
+        $decoded = json_decode($this->body, true);
+        if (!is_array($decoded) || !isset($decoded['message']) || !is_scalar($decoded['message'])) {
+            return [];
+        }
+
+        return ApiText::split((string) $decoded['message']);
+    }
+
+    /**
      * The body decoded as JSON: an array for objects, a string for a protocol number, and so on.
      * Big integers stay strings.
      *

@@ -95,7 +95,7 @@ src/
   Resources.php           constants for the resources the wiki documents, named after its titles
   Query.php               qtype/query/oper/page/rp/sortname/sortorder plus grid_param filters
   Page.php                one page of a listing: page, total, rows
-  Response.php            raw response of a resource: status, body, json()
+  Response.php            raw response of a resource: status, body, json(), message()/messages()
   ApiText.php             the API's message as text: double encoding repaired, split on <br />
   Exception/              IxcException (interface), TransportException, AuthenticationException, ApiErrorException,
                           NotFoundException, UnexpectedResponseException
