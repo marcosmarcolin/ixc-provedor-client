@@ -151,4 +151,4 @@ What the fixtures in `tests/Fixtures/` show (captured from a real IXC Provedor),
 5. [x] `Resource` and `Response`.
 6. [x] `Client::create()` with the built-in client, and `withHttpClient()`.
 7. [x] Complete both READMEs (pt-BR and en) with usage examples.
-8. [ ] First release (`v0.1.0`).
+8. [x] First release (`v0.1.0`).
