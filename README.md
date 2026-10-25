@@ -2,6 +2,12 @@
 
 **Português** | [English](README.en.md)
 
+[![CI](https://github.com/marcosmarcolin/ixc-provedor-client/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/marcosmarcolin/ixc-provedor-client/actions/workflows/ci.yml)
+[![Packagist Version](https://img.shields.io/packagist/v/marcosmarcolin/ixc-provedor-client)](https://packagist.org/packages/marcosmarcolin/ixc-provedor-client)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/marcosmarcolin/ixc-provedor-client/php)](https://packagist.org/packages/marcosmarcolin/ixc-provedor-client)
+[![Downloads](https://img.shields.io/packagist/dt/marcosmarcolin/ixc-provedor-client)](https://packagist.org/packages/marcosmarcolin/ixc-provedor-client/stats)
+[![License](https://img.shields.io/packagist/l/marcosmarcolin/ixc-provedor-client)](LICENSE)
+
 > Construído com base na API pública do IXC Provedor, documentada em <a href="https://wikiapiprovedor.ixcsoft.com.br" target="_blank" rel="noopener noreferrer">wikiapiprovedor.ixcsoft.com.br</a>.
 
 Cliente PHP para a API (webservice) do **IXC Provedor**, da IXCSoft.
