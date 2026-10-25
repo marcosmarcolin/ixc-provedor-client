@@ -79,6 +79,7 @@ $client = $clients->find('42');                           // array or null
 $id = $clients->create($row);                             // id of the new record
 $clients->update('42', ['obs' => 'Changed by the API']);  // changes only these fields
 $clients->delete('42');
+$clients->delete('42', '43', '44');                       // several in one request
 ```
 
 Files go in the form's file field, in a `create()`; the package sends the row as multipart, the only format in which the API takes files:
@@ -97,7 +98,7 @@ $ixc->route('cliente_arquivos')->create(
 - **Insert:** the API validates the whole form. Build the row from an existing record (`find`) or the wiki's full template and change only what is needed.
 - **Dates:** listings return `Y-m-d`, but writes expect `d/m/Y`. A `Y-m-d` date is saved blank or wrong, and the API still answers success. So the package converts `Y-m-d` to `d/m/Y` on every write; dates can be sent as the listing returned them.
 - **Update:** `update()` reads the record, applies the changes and writes the whole record back, because the API validates every field (two requests). For a missing id it throws `NotFoundException`. To write a full row directly, use `replace($id, $row)`; `patch($id, $row)` does the same with the `PATCH` method, which the API also validates as the whole record.
-- **False successes:** the API answers success to `replace()` and `delete()` of an id that does not exist.
+- **False successes:** the API answers success to `replace()` of an id that does not exist, and to `delete()` too on most routes. On some, such as `cliente_arquivos`, deleting a missing id throws `ApiErrorException`. In a `delete()` of several ids, the missing ones are skipped.
 
 ## Resources
 

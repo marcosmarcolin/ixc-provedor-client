@@ -172,13 +172,15 @@ final class Route
     }
 
     /**
-     * Deletes a record. The API answers success even when the id does not exist.
+     * Deletes one or more records in one request. Most routes answer success even for ids that do not exist
+     * (they are skipped); some, such as cliente_arquivos, answer an error for a single missing id.
      *
      * @throws IxcException
      */
-    public function delete(string $id): void
+    public function delete(string $id, string ...$ids): void
     {
-        $this->success($this->transport->send('DELETE', $this->name . '/' . self::id($id)));
+        $path = implode(',', array_map([self::class, 'id'], array_merge([$id], $ids)));
+        $this->success($this->transport->send('DELETE', $this->name . '/' . $path));
     }
 
     /**

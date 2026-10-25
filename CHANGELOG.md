@@ -4,6 +4,10 @@ All notable changes to this package are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- `Route::delete()` takes several ids, `delete('18', '19')`, and deletes them in one request, as the API accepts them comma-separated.
+
 ### Fixed
 
 - A PATCH error answered as `{"tipo":"error","valor":...}`, as `cliente` and `cliente_contrato` do for an id that does not exist, now raises `ApiErrorException` with the API's message, instead of an `UnexpectedResponseException`.
