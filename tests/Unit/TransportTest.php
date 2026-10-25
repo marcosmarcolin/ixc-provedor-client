@@ -123,6 +123,57 @@ final class TransportTest extends TestCase
         }
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function tipoValorErrors(): iterable
+    {
+        yield 'client' => ['patch_not_found'];
+        yield 'contract' => ['patch_not_found_contract'];
+    }
+
+    /**
+     * @dataProvider tipoValorErrors
+     */
+    public function testTurnsATipoValorErrorIntoAnException(string $fixture): void
+    {
+        $this->http->addResponse(Fixture::response($fixture));
+
+        try {
+            $this->transport()->send('PATCH', 'cliente/999999999', [], '{"obs":"teste"}');
+            self::fail('Expected an ApiErrorException.');
+        } catch (ApiErrorException $exception) {
+            self::assertSame(200, $exception->statusCode());
+            self::assertSame('Registro não encontrado!', $exception->messages()[0]);
+            self::assertGreaterThan(1, count($exception->messages()));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, int, string}>
+     */
+    public static function emptyHttpErrors(): iterable
+    {
+        yield 'server error' => ['patch_server_error', 500, 'Internal Server Error'];
+        yield 'not implemented' => ['patch_not_implemented', 501, 'Not Implemented'];
+    }
+
+    /**
+     * @dataProvider emptyHttpErrors
+     */
+    public function testTurnsAnEmptyHttpErrorIntoAnException(string $fixture, int $status, string $message): void
+    {
+        $this->http->addResponse(Fixture::response($fixture));
+
+        try {
+            $this->transport()->send('PATCH', 'cidade/999999999', [], '{"obs":"teste"}');
+            self::fail('Expected an ApiErrorException.');
+        } catch (ApiErrorException $exception) {
+            self::assertSame($status, $exception->statusCode());
+            self::assertSame($message, $exception->getMessage());
+        }
+    }
+
     public function testSplitsSeveralValidationErrors(): void
     {
         $this->http->addResponse(Fixture::response('insert_invalid'));

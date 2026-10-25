@@ -149,7 +149,7 @@ Toda exceção de uma requisição implementa `Marcolin\IxcProvedor\Exception\Ix
 
 | Exceção | Quando |
 |---|---|
-| `ApiErrorException` | a API respondeu `{"type":"error"}`, o que costuma vir com HTTP 200, ou um status HTTP de erro |
+| `ApiErrorException` | a API respondeu `{"type":"error"}` (ou `{"tipo":"error"}`, em alguns PATCH), o que costuma vir com HTTP 200, ou um status HTTP de erro |
 | `NotFoundException` | `update()` de um registro que não existe |
 | `UnexpectedResponseException` | a resposta não é a esperada para a rota, como uma página HTML de falha |
 | `AuthenticationException` | HTTP 401: token recusado (segredo errado ou usuário inexistente) |

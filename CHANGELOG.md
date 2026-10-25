@@ -2,6 +2,12 @@
 
 All notable changes to this package are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- A PATCH error answered as `{"tipo":"error","valor":...}`, as `cliente` and `cliente_contrato` do for an id that does not exist, now raises `ApiErrorException` with the API's message, instead of an `UnexpectedResponseException`.
+
 ## [0.1.0] - 2026-10-25
 
 First release: a client for the public IXC Provedor API (`/webservice/v1`), covering the routes and resources its wiki documents.
@@ -20,4 +26,5 @@ First release: a client for the public IXC Provedor API (`/webservice/v1`), cove
 - `ApiVersion`, with `v1` as the only supported version.
 - PHP 7.4 to 8.5.
 
+[Unreleased]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/marcosmarcolin/ixc-provedor-client/releases/tag/v0.1.0
