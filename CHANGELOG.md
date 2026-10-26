@@ -1,43 +1,43 @@
 # Changelog
 
-All notable changes to this package are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
+Todas as mudanças relevantes deste pacote ficam registradas aqui. O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e as versões seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
-### Changed
+### Alterado
 
-- The README is shorter, with an opening example and a "why use it" list; the details moved to guides in `docs/` (configuration, routes, resources, errors, development), in Portuguese.
-- The user docs (README, guides, security policy) are in Portuguese only; the English translations were removed.
+- O README ficou mais curto, com um exemplo de abertura e uma lista de motivos para usar o pacote; os detalhes foram para guias em `docs/` (configuração, rotas, recursos, erros, desenvolvimento).
+- A documentação para usuários (README, guias, política de segurança e este changelog) e a descrição do pacote no Composer são só em português; as traduções para o inglês foram removidas.
 
 ## [0.2.0] - 2026-10-25
 
-### Added
+### Adicionado
 
-- `Response::message()` and `messages()`: the `message` of a resource's answer as plain text, such as `"Contrato ativado com sucesso!"`, split on `<br />` like `ApiErrorException`'s; empty when the answer has none.
-- `Route::delete()` takes several ids, `delete('18', '19')`, and deletes them in one request, as the API accepts them comma-separated.
+- `Response::message()` e `messages()`: o `message` da resposta de um recurso como texto simples, como `"Contrato ativado com sucesso!"`, separado em `<br />` como o de `ApiErrorException`; vazio quando a resposta não tem mensagem.
+- `Route::delete()` aceita vários ids, `delete('18', '19')`, e exclui todos numa requisição só, já que a API os aceita separados por vírgula.
 
-### Fixed
+### Corrigido
 
-- The messages the API sends double-encoded, such as the access refusals by IP or hour (`Seu IP nÃ£o está liberado...`), are repaired in `ApiErrorException::getMessage()` and `messages()`; `apiMessage()` stays as sent.
-- A PATCH error answered as `{"tipo":"error","valor":...}`, as `cliente` and `cliente_contrato` do for an id that does not exist, now raises `ApiErrorException` with the API's message, instead of an `UnexpectedResponseException`.
+- As mensagens que a API manda com codificação dupla, como as recusas de acesso por IP ou horário (`Seu IP nÃ£o está liberado...`), chegam corrigidas em `ApiErrorException::getMessage()` e `messages()`; `apiMessage()` continua como foi enviada.
+- Um erro de PATCH respondido como `{"tipo":"error","valor":...}`, como fazem `cliente` e `cliente_contrato` para um id que não existe, agora lança `ApiErrorException` com a mensagem da API, em vez de `UnexpectedResponseException`.
 
 ## [0.1.0] - 2026-10-25
 
-First release: a client for the public IXC Provedor API (`/webservice/v1`), covering the routes and resources its wiki documents.
+Primeira versão: um cliente para a API pública do IXC Provedor (`/webservice/v1`), cobrindo as rotas e os recursos que a wiki documenta.
 
-### Added
+### Adicionado
 
-- `Client::create($host, $token, $selfSigned = false)` on a built-in HTTP client (ext-curl): as in the official client, the certificate is verified unless `$selfSigned` is `true`.
-- `Client::withHttpClient($host, $token, $httpClient)` for any PSR-18 client, such as Guzzle or Symfony HttpClient.
-- Routes (the system's forms) through `Client::route($name)`:
-  - `list()` with `Query` (condition, `grid_param` filters, paging and sorting) and `each()` over every page;
-  - `find()`, `create()` (also with files, as multipart form data, through `Attachment`), `update()`, `replace()`, `patch()` and `delete()`;
-  - `update()` reads the record, applies the changes and writes the whole record back, throwing `NotFoundException` for a missing id;
-  - writes send `Y-m-d` dates as `d/m/Y`, since the API saves a `Y-m-d` date blank or corrupted while answering success.
-- Resources (the system's actions) through `Client::resource($name)`, with `list()` and `post()` as the wiki calls them and the raw `Response` (`status()`, `header()`, `body()`, `json()`); `Resources` names the 17 resources the wiki documents.
-- Exceptions under `IxcException`: `ApiErrorException` (the API's `{"type":"error"}`, usually with HTTP 200, with the API's own Portuguese message), `AuthenticationException`, `TransportException`, `NotFoundException` and `UnexpectedResponseException`.
-- `ApiVersion`, with `v1` as the only supported version.
-- PHP 7.4 to 8.5.
+- `Client::create($host, $token, $selfSigned = false)` sobre um cliente HTTP próprio (ext-curl): como no cliente oficial, o certificado é verificado, a não ser que `$selfSigned` seja `true`.
+- `Client::withHttpClient($host, $token, $httpClient)` para qualquer cliente PSR-18, como Guzzle ou Symfony HttpClient.
+- Rotas (os formulários do sistema) por `Client::route($name)`:
+  - `list()` com `Query` (condição, filtros `grid_param`, paginação e ordenação) e `each()` sobre todas as páginas;
+  - `find()`, `create()` (também com arquivos, como multipart form data, por `Attachment`), `update()`, `replace()`, `patch()` e `delete()`;
+  - `update()` lê o registro, aplica as alterações e grava o registro inteiro de volta, lançando `NotFoundException` para um id que não existe;
+  - as gravações mandam datas `Y-m-d` como `d/m/Y`, já que a API salva uma data `Y-m-d` em branco ou corrompida enquanto responde sucesso.
+- Recursos (as ações do sistema) por `Client::resource($name)`, com `list()` e `post()` como a wiki os chama e a `Response` bruta (`status()`, `header()`, `body()`, `json()`); `Resources` nomeia os 17 recursos que a wiki documenta.
+- Exceções sob `IxcException`: `ApiErrorException` (o `{"type":"error"}` da API, em geral com HTTP 200, com a mensagem da própria API em português), `AuthenticationException`, `TransportException`, `NotFoundException` e `UnexpectedResponseException`.
+- `ApiVersion`, com `v1` como única versão suportada.
+- PHP 7.4 a 8.5.
 
 [Unreleased]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.2.0...HEAD
 [0.2.0]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.1.0...v0.2.0

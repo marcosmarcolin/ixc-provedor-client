@@ -53,7 +53,7 @@ A change is done only when all of these hold:
 - No `echo`/`print`. Errors become exceptions.
 - **Error messages:** `ApiErrorException::getMessage()` is the API's own text (Portuguese, double encoding repaired, `<br />` split and joined with `; `), so applications can show it to users as is; the status is in `statusCode()`, the raw text in `apiMessage()`. Messages written by this package (invalid arguments, transport and authentication failures) are in English and never echo the host or the token. No configurable language: it would need global state or reach only part of the messages.
 - No production dependencies besides the PSR interfaces, `php-http/discovery` and ext-curl.
-- Code, comments, CLAUDE.md, commits and PRs in English. User docs (`README.md`, `docs/`, CONTRIBUTING, SECURITY) are in Portuguese only: IXC Provedor's users are mostly Brazilian. No English translation; `CHANGELOG.md` stays in English.
+- Code, comments, CLAUDE.md, commits and PRs in English. User docs (`README.md`, `docs/`, `CHANGELOG.md`, CONTRIBUTING, SECURITY), the GitHub repository description and the Composer package description are in Portuguese only: IXC Provedor's users are mostly Brazilian. No English translation.
 
 ## Verification
 
@@ -80,7 +80,7 @@ User docs live in the README and in `docs/`, in Portuguese only, updated in the 
 | `docs/resources.md` | `Resource`, `Resources`, `Response`, and the answer formats seen per resource | `Resource`, `Response` or a resource's observed answer changes |
 | `docs/errors.md` | the exceptions and when each is thrown, `ApiErrorException`'s messages | an exception or the error mapping changes |
 | `docs/development.md` | the Docker commands, secret scanning, fixture capture | a command, tool or the capture changes |
-| `CHANGELOG.md` | every user-visible change, English only | always, under `Unreleased` |
+| `CHANGELOG.md` | every user-visible change, in Portuguese, Keep a Changelog headings in Portuguese (`Adicionado`, `Alterado`, `Corrigido`, `Removido`) | always, under `Unreleased` |
 
 Docs link to each other with relative paths and anchors; check them after moving or renaming a heading. A new guide goes in this table and in the README's Documentation table.
 
