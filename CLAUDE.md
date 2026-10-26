@@ -34,7 +34,7 @@ A change is done only when all of these hold:
 1. **It is tested.** New behavior comes with tests, and a bug fix comes with a test that fails without the fix. HTTP is faked with `php-http/mock-client`; tests never hit the network.
 2. **No secrets:** gitleaks passes, locally (hooks) and in CI.
 3. **The quality tools pass:** PHPUnit, phpcs (PSR-12) and PHPStan at level `max`, locally in Docker and in CI, on every PHP version from 7.4 to the latest. Line coverage stays at 95% or more (`composer coverage`, the `coverage` job in CI, with pcov).
-4. **The docs are current:** both READMEs, `CHANGELOG.md` (under `Unreleased`) and CLAUDE.md match the behavior.
+4. **The docs are current:** both READMEs, the user guides in `docs/` (both languages), `CHANGELOG.md` (under `Unreleased`) and CLAUDE.md match the behavior (see [Documentation](#documentation)).
 
 ## Code rules
 
@@ -53,7 +53,7 @@ A change is done only when all of these hold:
 - No `echo`/`print`. Errors become exceptions.
 - **Error messages:** `ApiErrorException::getMessage()` is the API's own text (Portuguese, double encoding repaired, `<br />` split and joined with `; `), so applications can show it to users as is; the status is in `statusCode()`, the raw text in `apiMessage()`. Messages written by this package (invalid arguments, transport and authentication failures) are in English and never echo the host or the token. No configurable language: it would need global state or reach only part of the messages.
 - No production dependencies besides the PSR interfaces, `php-http/discovery` and ext-curl.
-- Code, comments, CLAUDE.md, commits and PRs in English. `README.md` is in Portuguese, the language of the package's users, and `README.en.md` is its English translation; both start with a language switcher and change together.
+- Code, comments, CLAUDE.md, commits and PRs in English. User docs are in Portuguese, the language of the package's users, with an English translation: `README.md` and `docs/<guide>.md` in Portuguese, `README.en.md` and `docs/<guide>.en.md` in English. Each starts with a language switcher, and both languages change together.
 
 ## Verification
 
@@ -67,6 +67,22 @@ docker compose run --rm php composer coverage   # line coverage, fails below 95%
 PHP_VERSION=8.4 docker compose build php && PHP_VERSION=8.4 docker compose run --rm php vendor/bin/phpunit
 git config core.hooksPath .githooks   # once per clone: gitleaks before every commit and push
 ```
+
+## Documentation
+
+User docs live in the README and in `docs/`, each in Portuguese (`.md`, the reference) and English (`.en.md`), updated together in the same PR as the change they describe. Neither language has content the other lacks; code blocks match, except that the English ones use English variable names and comments.
+
+| File | Covers | Update it when |
+|---|---|---|
+| `README.md` | what the package is, a short opening example, why use it, requirements, installation, a short getting started, the guides table, links to CHANGELOG, CONTRIBUTING and SECURITY | a feature or requirement is added or removed; keep it short, details go to `docs/` |
+| `docs/configuration.md` | the token, the host, `$selfSigned`, `withHttpClient()`, `ApiVersion` | a `Client` factory, TLS or the API version changes |
+| `docs/routes.md` | `Route` and `Query`: list, each, find, create (with `Attachment`), update, replace, patch, delete; dates and false successes | `Route`, `Query`, `Page`, `RowEncoder` or `Attachment` behavior changes |
+| `docs/resources.md` | `Resource`, `Resources`, `Response`, and the answer formats seen per resource | `Resource`, `Response` or a resource's observed answer changes |
+| `docs/errors.md` | the exceptions and when each is thrown, `ApiErrorException`'s messages | an exception or the error mapping changes |
+| `docs/development.md` | the Docker commands, secret scanning, fixture capture | a command, tool or the capture changes |
+| `CHANGELOG.md` | every user-visible change, English only | always, under `Unreleased` |
+
+Docs link to each other with relative paths and anchors; check them after moving or renaming a heading. A new guide goes in this table and in both READMEs' Documentation table.
 
 ## Workflow
 
