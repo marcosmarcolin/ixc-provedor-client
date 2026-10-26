@@ -6,7 +6,8 @@ All notable changes to this package are documented here. The format follows [Kee
 
 ### Changed
 
-- The README is shorter, with an opening example and a "why use it" list; the details moved to guides in `docs/` (configuration, routes, resources, errors, development), in Portuguese and English.
+- The README is shorter, with an opening example and a "why use it" list; the details moved to guides in `docs/` (configuration, routes, resources, errors, development), in Portuguese.
+- The user docs (README, guides, security policy) are in Portuguese only; the English translations were removed.
 
 ## [0.2.0] - 2026-10-25
 

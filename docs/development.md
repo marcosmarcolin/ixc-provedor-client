@@ -1,7 +1,5 @@
 # Desenvolvimento
 
-**Português** | [English](development.en.md)
-
 [← Voltar ao README](../README.md)
 
 Para contribuir, veja também o [CONTRIBUTING.md](../CONTRIBUTING.md).

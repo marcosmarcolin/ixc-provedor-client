@@ -1,7 +1,5 @@
 # ixc-provedor-client
 
-**Português** | [English](README.en.md)
-
 [![CI](https://github.com/marcosmarcolin/ixc-provedor-client/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/marcosmarcolin/ixc-provedor-client/actions/workflows/ci.yml)
 [![Packagist Version](https://img.shields.io/packagist/v/marcosmarcolin/ixc-provedor-client)](https://packagist.org/packages/marcosmarcolin/ixc-provedor-client)
 [![PHP Version](https://img.shields.io/packagist/dependency-v/marcosmarcolin/ixc-provedor-client/php)](https://packagist.org/packages/marcosmarcolin/ixc-provedor-client)

@@ -1,7 +1,5 @@
 # Recursos
 
-**Português** | [English](resources.en.md)
-
 [← Voltar ao README](../README.md)
 
 Os recursos ("Recursos da API" na [wiki](https://wikiapiprovedor.ixcsoft.com.br)) são as ações do sistema, como ativar um contrato, gerar um boleto ou fechar uma ordem de serviço. São chamados pelo nome, com os parâmetros que a wiki documenta para cada um. Para listar e cadastrar registros, veja as [rotas](routes.md).

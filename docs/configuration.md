@@ -1,7 +1,5 @@
 # Configuração
 
-**Português** | [English](configuration.en.md)
-
 [← Voltar ao README](../README.md)
 
 - [Token](#token)

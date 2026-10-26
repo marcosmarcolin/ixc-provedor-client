@@ -34,7 +34,7 @@ A change is done only when all of these hold:
 1. **It is tested.** New behavior comes with tests, and a bug fix comes with a test that fails without the fix. HTTP is faked with `php-http/mock-client`; tests never hit the network.
 2. **No secrets:** gitleaks passes, locally (hooks) and in CI.
 3. **The quality tools pass:** PHPUnit, phpcs (PSR-12) and PHPStan at level `max`, locally in Docker and in CI, on every PHP version from 7.4 to the latest. Line coverage stays at 95% or more (`composer coverage`, the `coverage` job in CI, with pcov).
-4. **The docs are current:** both READMEs, the user guides in `docs/` (both languages), `CHANGELOG.md` (under `Unreleased`) and CLAUDE.md match the behavior (see [Documentation](#documentation)).
+4. **The docs are current:** the README, the user guides in `docs/`, `CHANGELOG.md` (under `Unreleased`) and CLAUDE.md match the behavior (see [Documentation](#documentation)).
 
 ## Code rules
 
@@ -53,7 +53,7 @@ A change is done only when all of these hold:
 - No `echo`/`print`. Errors become exceptions.
 - **Error messages:** `ApiErrorException::getMessage()` is the API's own text (Portuguese, double encoding repaired, `<br />` split and joined with `; `), so applications can show it to users as is; the status is in `statusCode()`, the raw text in `apiMessage()`. Messages written by this package (invalid arguments, transport and authentication failures) are in English and never echo the host or the token. No configurable language: it would need global state or reach only part of the messages.
 - No production dependencies besides the PSR interfaces, `php-http/discovery` and ext-curl.
-- Code, comments, CLAUDE.md, commits and PRs in English. User docs are in Portuguese, the language of the package's users, with an English translation: `README.md` and `docs/<guide>.md` in Portuguese, `README.en.md` and `docs/<guide>.en.md` in English. Each starts with a language switcher, and both languages change together.
+- Code, comments, CLAUDE.md, commits and PRs in English. User docs (`README.md`, `docs/`, CONTRIBUTING, SECURITY) are in Portuguese only: IXC Provedor's users are mostly Brazilian. No English translation; `CHANGELOG.md` stays in English.
 
 ## Verification
 
@@ -70,7 +70,7 @@ git config core.hooksPath .githooks   # once per clone: gitleaks before every co
 
 ## Documentation
 
-User docs live in the README and in `docs/`, each in Portuguese (`.md`, the reference) and English (`.en.md`), updated together in the same PR as the change they describe. Neither language has content the other lacks; code blocks match, except that the English ones use English variable names and comments.
+User docs live in the README and in `docs/`, in Portuguese only, updated in the same PR as the change they describe.
 
 | File | Covers | Update it when |
 |---|---|---|
@@ -82,7 +82,7 @@ User docs live in the README and in `docs/`, each in Portuguese (`.md`, the refe
 | `docs/development.md` | the Docker commands, secret scanning, fixture capture | a command, tool or the capture changes |
 | `CHANGELOG.md` | every user-visible change, English only | always, under `Unreleased` |
 
-Docs link to each other with relative paths and anchors; check them after moving or renaming a heading. A new guide goes in this table and in both READMEs' Documentation table.
+Docs link to each other with relative paths and anchors; check them after moving or renaming a heading. A new guide goes in this table and in the README's Documentation table.
 
 ## Workflow
 
