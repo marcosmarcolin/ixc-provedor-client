@@ -1,6 +1,6 @@
 {
   "name": "marcosmarcolin/ixc-provedor-client",
-  "description": "PHP client for the IXC Provedor (IXCSoft) webservice API",
+  "description": "Cliente PHP para a API webservice do IXC Provedor (IXCSoft)",
   "type": "library",
   "license": "MIT",
   "keywords": [
