@@ -4,6 +4,8 @@ Todas as mudanças relevantes deste pacote ficam registradas aqui. O formato seg
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-26
+
 ### Alterado
 
 - O README ficou mais curto, com um exemplo de abertura e uma lista de motivos para usar o pacote; os detalhes foram para guias em `docs/` (configuração, rotas, recursos, erros, desenvolvimento).
@@ -39,6 +41,7 @@ Primeira versão: um cliente para a API pública do IXC Provedor (`/webservice/v
 - `ApiVersion`, com `v1` como única versão suportada.
 - PHP 7.4 a 8.5.
 
-[Unreleased]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/marcosmarcolin/ixc-provedor-client/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/marcosmarcolin/ixc-provedor-client/releases/tag/v0.1.0
