@@ -1,7 +1,5 @@
 # Erros
 
-**Português** | [English](errors.en.md)
-
 [← Voltar ao README](../README.md)
 
 A maioria dos erros da API vem com HTTP 200 e `{"type":"error"}` no corpo. O pacote olha o corpo, não só o status, e transforma cada falha numa exceção.

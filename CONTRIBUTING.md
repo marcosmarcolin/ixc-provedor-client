@@ -42,7 +42,7 @@ PHP_VERSION=8.5 docker compose build php && PHP_VERSION=8.5 docker compose run -
 - **Compatível com PHP 7.4:** sem union types, `mixed`, `match`, argumentos nomeados, promoção de construtor, nullsafe, retorno `static`, enums ou `readonly`.
 - **Tipado:** `declare(strict_types=1);` em todo arquivo, parâmetros, retornos e propriedades tipados, classes `final` e objetos de valor imutáveis.
 - **Sem segredos:** nenhum token, host ou dado real de cliente em código, fixtures, mensagens de erro ou histórico. O gitleaks roda nos hooks e no CI; nunca use `--no-verify`.
-- **Documentação em dia:** os READMEs e os guias de `docs/` (`README.md` e `docs/<guia>.md` em português, `README.en.md` e `docs/<guia>.en.md` em inglês, mudam juntos) e o `CHANGELOG.md`, na seção `Unreleased`.
+- **Documentação em dia:** o `README.md`, os guias de `docs/` e o `CHANGELOG.md`, na seção `Unreleased`.
 
 ## Commits e pull requests
 

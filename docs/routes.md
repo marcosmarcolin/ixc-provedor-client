@@ -1,7 +1,5 @@
 # Rotas
 
-**Português** | [English](routes.en.md)
-
 [← Voltar ao README](../README.md)
 
 No modelo do IXC, uma **rota** é um formulário do sistema (`cliente`, `cliente_contrato`, `fn_areceber`...), com listagem e cadastro: a API valida a requisição como o formulário valida a tela. Ações como ativar um contrato ou gerar um boleto são [recursos](resources.md).
